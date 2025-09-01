@@ -14,8 +14,7 @@ defmodule Hailstorm.Application do
       {Task.Supervisor, name: Hailstorm.TaskSupervisor},
       # {Hailstorm.TestMetricsTask, 1},
 
-      Hailstorm.LoadTest.System,
-      # {Hailstorm.Party, nil},
+      Hailstorm.Scenario.System,
 
       # Start a worker by calling: Hailstorm.Worker.start_link(arg)
       # {Hailstorm.Worker, arg},

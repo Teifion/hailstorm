@@ -55,9 +55,9 @@ config :hailstorm, HailstormWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :hailstorm, dev_routes: true
 
-config :logger, :default_formatter,
-  format: "[$level] $metadata $message\n",
-  metadata: [:pid, :request_id, :user_id]
+# config :logger, :default_formatter,
+#   format: "[$level] $metadata $message\n",
+#   metadata: [:pid, :request_id, :user_id]
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

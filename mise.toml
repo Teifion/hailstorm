@@ -1,0 +1,7 @@
+[tools]
+erlang = "28.0.2"
+elixir = "1.18.4-otp-28"
+
+[env]
+# this will force elixir-ls to look for mise
+ASDF_DIR = "/lolnope"
