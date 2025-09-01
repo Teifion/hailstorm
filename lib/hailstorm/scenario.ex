@@ -37,4 +37,11 @@ defmodule Hailstorm.Scenario do
         other
     end
   end
+
+  def count_workers(%__MODULE__{} = scenario), do: count_workers(scenario.name)
+
+  def count_workers(name) do
+    DynamicSupervisor.count_children(Hailstorm.Scenario.System.via_worker_sup_name(name))
+    |> Map.get(:workers)
+  end
 end
