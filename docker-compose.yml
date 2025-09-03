@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./prometheus:/etc/prometheus
-    ports:
-      - "9090:9090"
-    depends_on:
-      - victoriametrics
-    networks:
-      - monitoring
-
   victoriametrics:
     image: victoriametrics/victoria-metrics:latest
     container_name: victoriametrics
@@ -23,6 +11,19 @@ services:
     networks:
       - monitoring
 
+  vmagent:
+    image: victoriametrics/vmagent:latest
+    container_name: vmagent
+    volumes:
+      - ./vmagent:/etc/vmagent/
+    command:
+      - '-remoteWrite.url=http://victoriametrics:8428/api/v1/write'
+      - '-promscrape.config=/etc/vmagent/vmagent.yml'
+    depends_on:
+      - victoriametrics
+    networks:
+      - monitoring
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -30,13 +31,13 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
-      # - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
     environment:
       - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+      - GF_INSTALL_PLUGINS=victoriametrics-metrics-datasource
     ports:
       - "3000:3000"
     depends_on:
-      - prometheus
+      - vmagent
       - victoriametrics
     networks:
       - monitoring
