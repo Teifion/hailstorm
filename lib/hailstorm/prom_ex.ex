@@ -61,13 +61,15 @@ defmodule Hailstorm.PromEx do
     [
       # PromEx built in plugins
       Plugins.Application,
-      Plugins.Beam
+      Plugins.Beam,
       # {Plugins.Phoenix, router: HailstormWeb.Router, endpoint: HailstormWeb.Endpoint},
       # Plugins.Ecto,
       # Plugins.Oban,
       # Plugins.PhoenixLiveView,
       # Plugins.Absinthe,
       # Plugins.Broadway,
+
+      Hailstorm.Monitoring
 
       # Add your own PromEx metrics plugins
       # Hailstorm.Users.PromExPlugin

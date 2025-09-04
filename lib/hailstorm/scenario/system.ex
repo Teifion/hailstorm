@@ -8,17 +8,17 @@ defmodule Hailstorm.Scenario.System do
   @impl true
   def init(_) do
     children = [
-      # for the toplevel scenarios
-      {DynamicSupervisor, name: Hailstorm.TopLevelScenarioSupervisor},
       # to register individual scenarios
-      {Registry, name: Hailstorm.ScenarioRegistry, keys: :unique}
+      {Registry, name: Hailstorm.ScenarioRegistry, keys: :unique},
+      # for the toplevel scenarios
+      {DynamicSupervisor, name: Hailstorm.TopLevelScenarioSupervisor}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
   def via_scenario_name(scenario_name) do
-    {:via, Registry, {Hailstorm.ScenarioRegistry, scenario_name}}
+    {:via, Registry, {Hailstorm.ScenarioRegistry, scenario_name, scenario_name}}
   end
 
   def via_reaper_name(scenario_name), do: via_scenario_name({:reaper, scenario_name})
@@ -33,5 +33,14 @@ defmodule Hailstorm.Scenario.System do
       [{pid, _}] -> pid
       _ -> nil
     end
+  end
+
+  def list_running_scenarios() do
+    Registry.select(Hailstorm.ScenarioRegistry, [{{:_, :_, :"$1"}, [], [:"$1"]}])
+    |> Enum.filter(fn x -> is_binary(x) end)
+  catch
+    :error, %ArgumentError{} ->
+      # the registry may not be started yet, and then you get ArgumentError
+      []
   end
 end

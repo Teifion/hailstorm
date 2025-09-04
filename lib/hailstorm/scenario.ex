@@ -38,6 +38,14 @@ defmodule Hailstorm.Scenario do
     end
   end
 
+  defdelegate list_running_scenarios(), to: Hailstorm.Scenario.System
+
+  def count_workers() do
+    list_running_scenarios()
+    |> Enum.map(&count_workers/1)
+    |> Enum.sum()
+  end
+
   def count_workers(%__MODULE__{} = scenario), do: count_workers(scenario.name)
 
   def count_workers(name) do
