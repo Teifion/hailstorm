@@ -8,6 +8,7 @@ defmodule Hailstorm.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Hailstorm.PromEx,
       HailstormWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:hailstorm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hailstorm.PubSub},

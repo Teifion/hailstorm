@@ -34,6 +34,8 @@ defmodule HailstormWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+  plug PromEx.Plug, prom_ex_module: Hailstorm.PromEx
+
   plug Phoenix.LiveDashboard.RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
