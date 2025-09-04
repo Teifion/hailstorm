@@ -13,7 +13,7 @@ defmodule Hailstorm.Party do
       async: true
     ]
 
-    state = %{data: data}
+    state = %{data: data, status: :connecting}
 
     WebSockex.start_link("ws://localhost:4000/tachyon", __MODULE__, state, conn_opts)
   end
@@ -25,17 +25,20 @@ defmodule Hailstorm.Party do
     Logger.metadata(user_id: state.data["id"])
     Logger.info("connected")
     :telemetry.execute([:hailstorm, :worker_count], %{count: 1})
-    {:ok, state}
+    {:ok, %{state | status: :running}}
   end
 
   def handle_disconnect(connection_status_map, state) do
     # do not attempt to reconnect at all (at least for now)
-    case connection_status_map.reason do
-      {:local, _} ->
+    case state.status do
+      :closing ->
         nil
 
       _ ->
-        Logger.warning("disconnecting because #{inspect(connection_status_map.reason)}")
+        Logger.warning(
+          "disconnecting because #{inspect(connection_status_map.reason)} #{inspect(state)}"
+        )
+
         :telemetry.execute([:hailstorm, :worker_error], %{count: 1})
     end
 
@@ -90,7 +93,7 @@ defmodule Hailstorm.Party do
 
   def handle_cast(:do_shutdown, state) do
     Logger.info("shutting down")
-    {:close, state}
+    {:close, %{state | status: :closing}}
   end
 
   def terminate(reason, _state) do
