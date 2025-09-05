@@ -23,6 +23,7 @@ defmodule Hailstorm.Scenario.System do
 
   def via_reaper_name(scenario_name), do: via_scenario_name({:reaper, scenario_name})
   def via_worker_sup_name(scenario_name), do: via_scenario_name({:supervisor, scenario_name})
+  def via_data_source_name(scenario_name), do: via_scenario_name({:data_source, scenario_name})
 
   def register_start_task(scenario_name) do
     Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)

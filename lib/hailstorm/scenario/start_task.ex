@@ -10,11 +10,7 @@ defmodule Hailstorm.Scenario.StartTask do
     Scenario.System.register_start_task(scenario.name)
     plan = rampup(scenario.vus, scenario.rampup_duration, scenario.rampup_step)
 
-    data =
-      File.stream!(scenario.data_path)
-      |> Enum.take(scenario.vus)
-      |> Enum.map(&Jason.decode!/1)
-      |> Enum.to_list()
+    {:ok, data} = Scenario.DataSource.get_data(scenario.name, scenario.vus)
 
     execute_plan(plan, data, scenario)
   end
@@ -24,7 +20,7 @@ defmodule Hailstorm.Scenario.StartTask do
   defp execute_plan([{:spawn, n} | rest], data, scenario) do
     {data, rest_data} = Enum.split(data, n)
 
-    for d <- data do
+    for {d, _idx} <- data do
       spec =
         scenario.worker.child_spec(d)
         # don't restart workers (for now)

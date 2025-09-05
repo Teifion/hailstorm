@@ -12,9 +12,9 @@ defmodule Hailstorm.Scenario.Supervisor do
   @impl true
   def init(scenario) do
     children = [
+      {Scenario.DataSource, scenario},
       {DynamicSupervisor,
        name: Scenario.System.via_worker_sup_name(scenario.name), strategy: :one_for_one},
-
       {Scenario.StartTask, scenario}
     ]
 
