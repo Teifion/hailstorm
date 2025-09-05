@@ -22,7 +22,7 @@ defmodule Hailstorm.Scenario.StartTask do
 
     for {d, _idx} <- data do
       spec =
-        scenario.worker.child_spec(d)
+        scenario.worker.child_spec(%{scenario: scenario, data: d})
         # don't restart workers (for now)
         |> Map.put(:restart, :temporary)
 

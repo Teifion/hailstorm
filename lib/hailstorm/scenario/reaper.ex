@@ -22,6 +22,7 @@ defmodule Hailstorm.Scenario.Reaper do
 
   @impl true
   def init({scenario, scenario_pid}) do
+    Logger.metadata(label: "#{scenario.name}", user_id: "reaper")
     :timer.send_after(scenario.duration, :shutdown_workers)
     ref = Process.monitor(scenario_pid)
 
@@ -42,7 +43,8 @@ defmodule Hailstorm.Scenario.Reaper do
     {:stop, :normal, state}
   end
 
-  def handle_info({:DOWN, _ref, :process, _, _}, state) do
+  def handle_info({:DOWN, _ref, :process, _pid, reason}, state) do
+    if reason != :normal, do: Logger.warning("worker down because: #{inspect(reason)}")
     state = Map.update!(state, :terminated_count, &(&1 + 1))
 
     if state.terminated_count == state.scenario.vus,
@@ -75,7 +77,9 @@ defmodule Hailstorm.Scenario.Reaper do
   def handle_continue(:terminate, state) do
     Logger.info("terminating supervisor for scenario #{state.scenario.name}")
     # Scenario.Supervisor.stop_scenario(state.scenario.name)
-    :ok = DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, state.scenario_pid)
+    :ok =
+      DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, state.scenario_pid)
+
     {:stop, :normal, state}
   end
 end

@@ -19,10 +19,8 @@ defmodule Hailstorm.Scenario do
 
     case result do
       {:ok, pid} ->
-        # Hailstorm.Scenario.Supervisor.start_scenario(scenario)
         {:ok, _} =
           DynamicSupervisor.start_child(
-            # Hailstorm.Scenario.System.via_scenario_name(scenario.name),
             Hailstorm.TopLevelScenarioSupervisor,
             {Hailstorm.Scenario.Reaper, {scenario, pid}}
           )

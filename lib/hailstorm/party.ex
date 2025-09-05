@@ -2,10 +2,10 @@ defmodule Hailstorm.Party do
   use WebSockex
   require Logger
 
-  def start_link(data) do
+  def start_link(arg) do
     conn_opts = [
       extra_headers: [
-        {"authorization", "Bearer #{data["access_token"]}"},
+        {"authorization", "Bearer #{arg.data["access_token"]}"},
         {"sec-websocket-protocol", "v0.tachyon"}
       ],
       socket_connect_timeout: 10_000,
@@ -13,7 +13,7 @@ defmodule Hailstorm.Party do
       async: true
     ]
 
-    state = %{data: data, status: :connecting}
+    state = %{scenario: arg.scenario, data: arg.data, status: :connecting}
 
     WebSockex.start_link("ws://localhost:4000/tachyon", __MODULE__, state, conn_opts)
   end
@@ -21,8 +21,7 @@ defmodule Hailstorm.Party do
   def shutdown(pid), do: WebSockex.cast(pid, :shutdown)
 
   def handle_connect(_conn, state) do
-    # Process.flag(:trap_exit, true)
-    Logger.metadata(user_id: state.data["id"])
+    Logger.metadata(user_id: state.data["id"], label: state.scenario.name)
     Logger.info("connected")
     :telemetry.execute([:hailstorm, :worker_count], %{count: 1})
     {:ok, %{state | status: :running}}
