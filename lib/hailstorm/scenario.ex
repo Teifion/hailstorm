@@ -3,6 +3,7 @@ defmodule Hailstorm.Scenario do
   defstruct [
     :name,
     :worker,
+    worker_args: %{},
     vus: 1,
     duration: 10_000,
     data_path: "./local-users.jsonl",
@@ -10,7 +11,7 @@ defmodule Hailstorm.Scenario do
     rampup_step: 1
   ]
 
-  alias Hailstorm.Scenario.Reaper
+  alias Hailstorm.Scenario.{Reaper, StartTask}
 
   def start_scenario(scenario) do
     result =
@@ -32,6 +33,8 @@ defmodule Hailstorm.Scenario do
         other
     end
   end
+
+  defdelegate add_workers(scenario), to: StartTask
 
   defdelegate list_running_scenarios(), to: Hailstorm.Scenario.System
 

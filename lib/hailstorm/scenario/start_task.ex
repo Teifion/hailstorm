@@ -8,11 +8,14 @@ defmodule Hailstorm.Scenario.StartTask do
 
   def start_workers(scenario) do
     Scenario.System.register_start_task(scenario.name)
+    add_workers(scenario)
+  end
+
+  def add_workers(scenario) do
     plan = rampup(scenario.vus, scenario.rampup_duration, scenario.rampup_step)
-
     {:ok, data} = Scenario.DataSource.get_data(scenario.name, scenario.vus)
-
     execute_plan(plan, data, scenario)
+    data
   end
 
   defp execute_plan([], _, _), do: :ok
@@ -22,7 +25,9 @@ defmodule Hailstorm.Scenario.StartTask do
 
     for {d, _idx} <- data do
       spec =
-        scenario.worker.child_spec(%{scenario: scenario, data: d})
+        scenario.worker.child_spec(
+          Map.merge(%{scenario: scenario, data: d}, scenario.worker_args)
+        )
         # don't restart workers (for now)
         |> Map.put(:restart, :temporary)
 
