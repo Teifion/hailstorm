@@ -63,7 +63,6 @@ defmodule HailstormWeb.Telemetry do
       # summary("tachyon.test.value"),
 
       last_value("websockex.terminate.time"),
-
       sum("tachyon.worker_count.count"),
       counter("tachyon.party_count.count"),
       counter("tachyon.worker_error.count")
