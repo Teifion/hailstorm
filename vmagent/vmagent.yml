@@ -7,4 +7,4 @@ scrape_configs:
       # for docker, may need "host.docker.internal:4001"
       - targets:
         - "host.containers.internal:4001" # teiserver
-        - "host.containers.internal:4002" # hailstorm
+        - "host.containers.internal:4005" # hailstorm
