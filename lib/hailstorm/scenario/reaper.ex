@@ -13,11 +13,11 @@ defmodule Hailstorm.Scenario.Reaper do
   end
 
   def monitor_scenario(scenario_name, pid) do
-    GenServer.call(via_tuple(scenario_name), {:monitor_scenario, pid})
+    GenServer.cast(via_tuple(scenario_name), {:monitor_scenario, pid})
   end
 
   def monitor_worker(scenario_name, pid) do
-    GenServer.call(via_tuple(scenario_name), {:monitor, pid})
+    GenServer.cast(via_tuple(scenario_name), {:monitor, pid})
   end
 
   def start_link(scenario) do
@@ -29,18 +29,24 @@ defmodule Hailstorm.Scenario.Reaper do
     Logger.metadata(label: "#{scenario.name}", user_id: "reaper")
     :timer.send_after(scenario.duration, :shutdown_workers)
 
-    {:ok, %{scenario: scenario, terminated_count: 0, scenario_pid: nil, scenario_ref: nil}}
+    {:ok,
+     %{
+       scenario: scenario,
+       monitored_count: 0,
+       scenario_pid: nil,
+       scenario_ref: nil
+     }}
   end
 
   @impl true
-  def handle_call({:monitor_scenario, pid}, _from, state) do
+  def handle_cast({:monitor_scenario, pid}, state) do
     ref = Process.monitor(pid)
-    {:reply, :ok, %{state | scenario_pid: pid, scenario_ref: ref}}
+    {:noreply, %{state | scenario_pid: pid, scenario_ref: ref}}
   end
 
-  def handle_call({:monitor, pid}, _from, state) do
+  def handle_cast({:monitor, pid}, state) do
     Process.monitor(pid)
-    {:reply, :ok, state}
+    {:noreply, Map.update!(state, :monitored_count, &(&1 + 1))}
   end
 
   @impl true
@@ -51,10 +57,12 @@ defmodule Hailstorm.Scenario.Reaper do
   end
 
   def handle_info({:DOWN, _ref, :process, _pid, reason}, state) do
-    if reason != :normal, do: Logger.warning("worker down because: #{inspect(reason)}")
-    state = Map.update!(state, :terminated_count, &(&1 + 1))
+    if reason not in [:normal, :shutdown],
+      do: Logger.warning("worker down because: #{inspect(reason)}")
 
-    if state.terminated_count == state.scenario.vus,
+    state = Map.update!(state, :monitored_count, &(&1 - 1))
+
+    if state.monitored_count == 0,
       do: {:noreply, state, {:continue, :terminate}},
       else: {:noreply, state}
   end
