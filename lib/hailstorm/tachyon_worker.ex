@@ -23,7 +23,7 @@ defmodule Hailstorm.TachyonWorker do
 
         state =
           %{scenario: arg.scenario, data: arg.data, status: :connecting}
-          |> Map.merge(init_state(arg) || %{})
+          |> Map.merge(init_state(arg))
 
         WebSockex.start_link("ws://localhost:4000/tachyon", __MODULE__, state, conn_opts)
       end

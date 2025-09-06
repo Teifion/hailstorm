@@ -33,13 +33,11 @@ defmodule Hailstorm.Party.JoinPart do
         {:reply, {:text, resp}, state}
 
       %{"commandId" => "party/acceptInvite", "status" => "success"} ->
-        Logger.debug("in party")
         jitter = :rand.uniform(100)
-        :timer.send_after(400 + jitter, :leave_party)
+        :timer.send_after(10_000 + jitter, :leave_party)
         {:ok, state}
 
       %{"commandId" => "party/leave", "status" => "success"} ->
-        Logger.debug("left party")
         Hailstorm.Party.Creator.invite(state.founder_pid, state.data["id"])
         {:ok, state}
 

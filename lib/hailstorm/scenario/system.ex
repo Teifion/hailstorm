@@ -36,6 +36,13 @@ defmodule Hailstorm.Scenario.System do
     end
   end
 
+  def scenario_pid(scenario_name) do
+    case Registry.lookup(Hailstorm.ScenarioRegistry, scenario_name) do
+      [{pid, _}] -> pid
+      _ -> nil
+    end
+  end
+
   def list_running_scenarios() do
     Registry.select(Hailstorm.ScenarioRegistry, [{{:_, :_, :"$1"}, [], [:"$1"]}])
     |> Enum.filter(fn x -> is_binary(x) end)

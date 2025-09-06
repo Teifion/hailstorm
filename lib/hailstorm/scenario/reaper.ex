@@ -20,6 +20,12 @@ defmodule Hailstorm.Scenario.Reaper do
     GenServer.cast(via_tuple(scenario_name), {:monitor, pid})
   end
 
+  def stop_scenario(scenario_name) do
+    GenServer.call(via_tuple(scenario_name), :stop_scenario)
+  catch
+    :exit, {:noproc, _} -> :ok
+  end
+
   def start_link(scenario) do
     GenServer.start_link(__MODULE__, scenario, name: via_tuple(scenario.name))
   end
@@ -34,8 +40,16 @@ defmodule Hailstorm.Scenario.Reaper do
        scenario: scenario,
        monitored_count: 0,
        scenario_pid: nil,
-       scenario_ref: nil
+       scenario_ref: nil,
+       stop_callers: []
      }}
+  end
+
+  @impl true
+  def handle_call(:stop_scenario, from, state) do
+    if state.stop_callers == [], do: shutdown_workers(state)
+    state = Map.update!(state, :stop_callers, fn cs -> [from | cs] end)
+    {:noreply, state}
   end
 
   @impl true
@@ -57,7 +71,7 @@ defmodule Hailstorm.Scenario.Reaper do
   end
 
   def handle_info({:DOWN, _ref, :process, _pid, reason}, state) do
-    if reason not in [:normal, :shutdown],
+    if reason not in [:normal, :shutdown, {:remote, :closed}],
       do: Logger.warning("worker down because: #{inspect(reason)}")
 
     state = Map.update!(state, :monitored_count, &(&1 - 1))
@@ -69,11 +83,30 @@ defmodule Hailstorm.Scenario.Reaper do
 
   @impl true
   def handle_info(:shutdown_workers, state) do
+    shutdown_workers(state)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_continue(:terminate, state) do
+    Logger.info("terminating supervisor for scenario #{state.scenario.name}")
+
+    for caller <- state.stop_callers, do: GenServer.reply(caller, :ok)
+
+    # because this process is itself under this supervisor, terminating it is going
+    # to abruptly terminate the reaper process as well.
+    spawn(fn ->
+      DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, state.scenario_pid)
+    end)
+
+    {:stop, :normal, state}
+  end
+
+  defp shutdown_workers(state) do
     Logger.info("Stopping workers for scenario #{state.scenario.name}")
 
-    # # in case the task that responsible for spawning workers
-    # # is still running, stop that first
-    # Process.exit(start_pid, :kill)
+    # in case the task that responsible for spawning workers
+    # is still running, stop that first
     case Scenario.System.start_task_pid(state.scenario.name) do
       pid when is_pid(pid) -> Process.exit(pid, :kill)
       _ -> nil
@@ -84,17 +117,5 @@ defmodule Hailstorm.Scenario.Reaper do
       {_, pid, _, _} when is_pid(pid) -> state.scenario.worker.shutdown(pid)
       _ -> nil
     end)
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_continue(:terminate, state) do
-    Logger.info("terminating supervisor for scenario #{state.scenario.name}")
-    # Scenario.Supervisor.stop_scenario(state.scenario.name)
-    :ok =
-      DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, state.scenario_pid)
-
-    {:stop, :normal, state}
   end
 end
