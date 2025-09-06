@@ -12,25 +12,32 @@ defmodule Hailstorm.Scenario.Reaper do
     Scenario.System.via_reaper_name(scenario_name)
   end
 
+  def monitor_scenario(scenario_name, pid) do
+    GenServer.call(via_tuple(scenario_name), {:monitor_scenario, pid})
+  end
+
   def monitor_worker(scenario_name, pid) do
     GenServer.call(via_tuple(scenario_name), {:monitor, pid})
   end
 
-  def start_link({scenario, _scenario_pid} = arg) do
-    GenServer.start_link(__MODULE__, arg, name: via_tuple(scenario.name))
+  def start_link(scenario) do
+    GenServer.start_link(__MODULE__, scenario, name: via_tuple(scenario.name))
   end
 
   @impl true
-  def init({scenario, scenario_pid}) do
+  def init(scenario) do
     Logger.metadata(label: "#{scenario.name}", user_id: "reaper")
     :timer.send_after(scenario.duration, :shutdown_workers)
-    ref = Process.monitor(scenario_pid)
 
-    {:ok,
-     %{scenario: scenario, terminated_count: 0, scenario_pid: scenario_pid, scenario_ref: ref}}
+    {:ok, %{scenario: scenario, terminated_count: 0, scenario_pid: nil, scenario_ref: nil}}
   end
 
   @impl true
+  def handle_call({:monitor_scenario, pid}, _from, state) do
+    ref = Process.monitor(pid)
+    {:reply, :ok, %{state | scenario_pid: pid, scenario_ref: ref}}
+  end
+
   def handle_call({:monitor, pid}, _from, state) do
     Process.monitor(pid)
     {:reply, :ok, state}

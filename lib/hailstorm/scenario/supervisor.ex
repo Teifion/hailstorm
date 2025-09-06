@@ -13,6 +13,7 @@ defmodule Hailstorm.Scenario.Supervisor do
   def init(scenario) do
     children = [
       {Scenario.DataSource, scenario},
+      {Hailstorm.Scenario.Reaper, scenario},
       {DynamicSupervisor,
        name: Scenario.System.via_worker_sup_name(scenario.name), strategy: :one_for_one},
       {Scenario.StartTask, scenario}

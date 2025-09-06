@@ -10,6 +10,8 @@ defmodule Hailstorm.Scenario do
     rampup_step: 1
   ]
 
+  alias Hailstorm.Scenario.Reaper
+
   def start_scenario(scenario) do
     result =
       DynamicSupervisor.start_child(
@@ -19,12 +21,7 @@ defmodule Hailstorm.Scenario do
 
     case result do
       {:ok, pid} ->
-        {:ok, _} =
-          DynamicSupervisor.start_child(
-            Hailstorm.TopLevelScenarioSupervisor,
-            {Hailstorm.Scenario.Reaper, {scenario, pid}}
-          )
-
+        Reaper.monitor_scenario(scenario.name, pid)
         result
 
       {:error, {:already_started, pid}} ->
