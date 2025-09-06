@@ -46,7 +46,7 @@ defmodule Hailstorm.TachyonWorker do
               "disconnecting because #{inspect(connection_status_map.reason)} #{inspect(state)}"
             )
 
-            :telemetry.execute([:hailstorm, :worker_error], %{count: 1})
+            :telemetry.execute([:hailstorm, :worker_error], %{count: 1}, %{scenario: state.scenario.name})
         end
 
         {:ok, state}

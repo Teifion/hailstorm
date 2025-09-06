@@ -4,6 +4,21 @@ defmodule Hailstorm.Monitoring do
   @worker_count_metrics_event_name [:prom_ex, :plugin, :hailstorm, :worker]
 
   @impl true
+  def event_metrics(_opts) do
+    Event.build(
+      :hailstorm_even_metrics,
+      [
+        counter(
+          [:hailstorm, :worker_error],
+          event_name: [:hailstorm, :worker_error],
+          measurement: fn _m -> 1 end,
+          tags: [:scenario]
+        )
+      ]
+    )
+  end
+
+  @impl true
   def polling_metrics(opts) do
     poll_rate = Keyword.get(opts, :poll_rate, 1_000)
 
