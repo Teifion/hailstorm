@@ -13,7 +13,7 @@ defmodule Hailstorm.Scenario.StartTask do
 
   def add_workers(scenario) do
     plan = rampup(scenario.vus, scenario.rampup_duration, scenario.rampup_step)
-    {:ok, data} = Scenario.DataSource.get_data(scenario.name, scenario.vus)
+    {:ok, data} = Scenario.DataSource.get_data(scenario.data_path, scenario.vus)
     execute_plan(plan, data, scenario)
     data
   end

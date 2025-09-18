@@ -9,13 +9,15 @@ defmodule Hailstorm.Scenario.DataSource do
   alias Hailstorm.Scenario.System
 
   def start_link(scenario) do
-    GenServer.start_link(__MODULE__, scenario, name: System.via_data_source_name(scenario.name))
+    GenServer.start_link(__MODULE__, scenario,
+      name: System.via_data_source_name(scenario.data_path)
+    )
   end
 
   @spec get_data(String.t(), non_neg_integer()) ::
           {:ok, [{term(), non_neg_integer()}]} | {:error, :not_enough_data}
-  def get_data(scenario_name, n) do
-    GenServer.call(System.via_data_source_name(scenario_name), {:get_data, n})
+  def get_data(data_path, n) do
+    GenServer.call(System.via_data_source_name(data_path), {:get_data, n})
   end
 
   @impl true
