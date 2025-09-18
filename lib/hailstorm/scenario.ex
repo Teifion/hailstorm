@@ -6,7 +6,6 @@ defmodule Hailstorm.Scenario do
     worker_args: %{},
     vus: 1,
     duration: 10_000,
-    data_path: "./local-users.jsonl",
     rampup_duration: 0,
     rampup_step: 1
   ]
@@ -14,6 +13,7 @@ defmodule Hailstorm.Scenario do
   alias Hailstorm.Scenario.{Reaper, StartTask, System}
 
   def start_scenario(scenario) do
+    Hailstorm.DataSource.reset()
     result =
       DynamicSupervisor.start_child(
         Hailstorm.TopLevelScenarioSupervisor,
@@ -63,5 +63,7 @@ defmodule Hailstorm.Scenario do
   def count_workers(name) do
     DynamicSupervisor.count_children(Hailstorm.Scenario.System.via_worker_sup_name(name))
     |> Map.get(:workers)
+  catch
+    :error, {:noproc, _} -> 0
   end
 end

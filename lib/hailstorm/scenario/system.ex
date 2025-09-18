@@ -23,7 +23,6 @@ defmodule Hailstorm.Scenario.System do
 
   def via_reaper_name(scenario_name), do: via_scenario_name({:reaper, scenario_name})
   def via_worker_sup_name(scenario_name), do: via_scenario_name({:supervisor, scenario_name})
-  def via_data_source_name(data_path), do: via_scenario_name({:data_source, data_path})
 
   def register_start_task(scenario_name) do
     Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)
@@ -49,6 +48,10 @@ defmodule Hailstorm.Scenario.System do
   catch
     :error, %ArgumentError{} ->
       # the registry may not be started yet, and then you get ArgumentError
+      []
+
+    :error, {:noproc, _} ->
+      # same
       []
   end
 end

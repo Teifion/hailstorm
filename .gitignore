@@ -37,3 +37,7 @@ npm-debug.log
 
 # files holding user data for testing
 *.jsonl
+
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

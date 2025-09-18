@@ -22,7 +22,7 @@ defmodule Hailstorm.Party.JoinPart do
         {:ok, state}
 
       %{"commandId" => "user/self"} ->
-        Hailstorm.Party.Creator.invite(state.founder_pid, state.data["id"])
+        Hailstorm.Party.Creator.invite(state.founder_pid, state.data.id)
         {:ok, state}
 
       %{"commandId" => "party/invited"} ->
@@ -38,7 +38,7 @@ defmodule Hailstorm.Party.JoinPart do
         {:ok, state}
 
       %{"commandId" => "party/leave", "status" => "success"} ->
-        Hailstorm.Party.Creator.invite(state.founder_pid, state.data["id"])
+        Hailstorm.Party.Creator.invite(state.founder_pid, state.data.id)
         {:ok, state}
 
       _ ->

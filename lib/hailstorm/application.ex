@@ -10,11 +10,11 @@ defmodule Hailstorm.Application do
     children = [
       Hailstorm.PromEx,
       HailstormWeb.Telemetry,
+      {Hailstorm.Repo, [database: "test-users.sqlite", pool_size: 10]},
+      Hailstorm.DataSource,
       {DNSCluster, query: Application.get_env(:hailstorm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hailstorm.PubSub},
       {Task.Supervisor, name: Hailstorm.TaskSupervisor},
-      # {Hailstorm.TestMetricsTask, 1},
-
       Hailstorm.Scenario.System,
 
       # Start a worker by calling: Hailstorm.Worker.start_link(arg)
@@ -22,6 +22,8 @@ defmodule Hailstorm.Application do
       # Start to serve requests, typically the last entry
       HailstormWeb.Endpoint
     ]
+
+    :ok = :hackney_pool.start_pool(:http_pool, timeout: 15000, max_connections: 100)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

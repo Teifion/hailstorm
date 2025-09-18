@@ -62,7 +62,10 @@ defmodule Hailstorm.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:websockex, "~> 0.5.0", hex: :websockex_wt},
-      {:uuidv7, "~> 1.0"}
+      {:uuidv7, "~> 1.0"},
+      {:httpoison, "~> 2.0"},
+      {:ecto, "~> 3.13"},
+      {:ecto_sqlite3, "~> 0.17"}
     ]
   end
 

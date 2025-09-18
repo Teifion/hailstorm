@@ -1,0 +1,2069 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#73BF69",
+        "limit": 100,
+        "name": "PromEx service start",
+        "showIn": 0,
+        "tags": [
+          "prom_ex",
+          "teiserver",
+          "start"
+        ],
+        "type": "tags"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#FF9830",
+        "limit": 100,
+        "name": "PromEx service stop",
+        "showIn": 0,
+        "tags": [
+          "prom_ex",
+          "teiserver",
+          "stop"
+        ],
+        "type": "tags"
+      }
+    ]
+  },
+  "description": "All the data that is presented here is captured by the PromEx BEAM plugin (https://github.com/akoutmos/prom_ex/blob/master/lib/prom_ex/plugins/beam.ex)",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 3,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "bolt",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Sponsor PromEx",
+      "tooltip": "",
+      "type": "link",
+      "url": "https://github.com/sponsors/akoutmos"
+    },
+    {
+      "asDropdown": false,
+      "icon": "doc",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "BEAM Plugin Docs",
+      "tooltip": "",
+      "type": "link",
+      "url": "https://hexdocs.pm/prom_ex/PromEx.Plugins.Beam.html"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 25,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The amount of time that has passed since the system has started.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "dtdurationms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_uptime_milliseconds_count{job=\"$job\", instance=\"$instance\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Shows the various options that OTP was compiled with.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Disabled"
+                },
+                "1": {
+                  "text": "Enabled"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": 0
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Compiler Option"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "teiserver_prom_ex_beam_system_jit_support_info": {
+                        "text": "JIT Support"
+                      },
+                      "teiserver_prom_ex_beam_system_smp_support_info": {
+                        "text": "SMP Support"
+                      },
+                      "teiserver_prom_ex_beam_system_thread_support_info": {
+                        "text": "Thread Support"
+                      },
+                      "teiserver_prom_ex_beam_system_time_correction_support_info": {
+                        "text": "Time Correction Support"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 219
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 0,
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "{__name__=~\"teiserver_prom_ex_beam_system_thread_support_info|teiserver_prom_ex_beam_system_jit_support_info|teiserver_prom_ex_beam_system_smp_support_info|teiserver_prom_ex_beam_system_time_correction_support_info\", job=\"$job\", instance=\"$instance\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "OTP Compiler Options",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "Value": 4,
+              "__name__": 3,
+              "instance": 1,
+              "job": 2
+            },
+            "renameByName": {
+              "Value": "Status",
+              "__name__": "Compiler Option"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The OTP major version running the application.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_system_version_info{job=\"$job\", instance=\"$instance\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "OTP Major Version",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of running BEAM processes currently running.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 25000
+              },
+              {
+                "color": "red",
+                "value": 75000
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_process_count{job=\"$job\", instance=\"$instance\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Process Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Shows information regarding the schedulers configured for the BEAM instance.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Disabled"
+                },
+                "1": {
+                  "text": "Enabled"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Type"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "teiserver_prom_ex_beam_system_dirty_cpu_schedulers_info": {
+                        "text": "Dirty CPU Schedulers"
+                      },
+                      "teiserver_prom_ex_beam_system_dirty_cpu_schedulers_online_info": {
+                        "text": "Dirty CPU Schedulers Online"
+                      },
+                      "teiserver_prom_ex_beam_system_dirty_io_schedulers_info": {
+                        "text": "Dirty IO Schedulers"
+                      },
+                      "teiserver_prom_ex_beam_system_logical_processors_available_info": {
+                        "text": "Logical Processors Available"
+                      },
+                      "teiserver_prom_ex_beam_system_logical_processors_info": {
+                        "text": "Logical Processors"
+                      },
+                      "teiserver_prom_ex_beam_system_logical_processors_online_info": {
+                        "text": "Logical Processors Online"
+                      },
+                      "teiserver_prom_ex_beam_system_schedulers_info": {
+                        "text": "System Schedulers"
+                      },
+                      "teiserver_prom_ex_beam_system_schedulers_online_info": {
+                        "text": "System Schedulers Online"
+                      },
+                      "teiserver_prom_ex_beam_system_word_size_bytes_info": {
+                        "text": "Word Size in Bytes"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "{__name__=~\"teiserver_prom_ex_beam_system_dirty_cpu_schedulers_info|teiserver_prom_ex_beam_system_dirty_cpu_schedulers_online_info|teiserver_prom_ex_beam_system_dirty_io_schedulers_info|teiserver_prom_ex_beam_system_schedulers_info|teiserver_prom_ex_beam_system_schedulers_online_info|teiserver_prom_ex_beam_system_word_size_bytes_info|teiserver_prom_ex_beam_system_logical_processors_info|teiserver_prom_ex_beam_system_logical_processors_available_info|teiserver_prom_ex_beam_system_logical_processors_online_info\", job=\"$job\", instance=\"$instance\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "System Information",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "Value": 4,
+              "__name__": 3,
+              "instance": 1,
+              "job": 2
+            },
+            "renameByName": {
+              "Value": "Value",
+              "__name__": "Type"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of currently active ports.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 25000
+              },
+              {
+                "color": "red",
+                "value": 75000
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_port_count{job=\"$job\", instance=\"$instance\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Port Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of currently allocated ETS tables.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 5000
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_ets_count{job=\"$job\", instance=\"$instance\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "ETS Table Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Shows information regarding the system limits of the BEAM instance.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Type"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "beam_system_thread_pool_size_info": {
+                        "text": "Thread Pool Size"
+                      },
+                      "teiserver_prom_ex_beam_system_atom_limit_info": {
+                        "text": "Atom Limit"
+                      },
+                      "teiserver_prom_ex_beam_system_ets_limit_info": {
+                        "text": "ETS Table Limit"
+                      },
+                      "teiserver_prom_ex_beam_system_port_limit_info": {
+                        "text": "Port Limit"
+                      },
+                      "teiserver_prom_ex_beam_system_process_limit_info": {
+                        "text": "Process Limit"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 9
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "{__name__=~\"teiserver_prom_ex_beam_system_ets_limit_info|teiserver_prom_ex_beam_system_port_limit_info|teiserver_prom_ex_beam_system_process_limit_info|teiserver_prom_ex_beam_system_atom_limit_info\", job=\"$job\", instance=\"$instance\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "System Limits",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "instance": true,
+              "job": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "Value": 4,
+              "__name__": 3,
+              "instance": 1,
+              "job": 2
+            },
+            "renameByName": {
+              "Value": "Value",
+              "__name__": "Type"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The amount of memory currently allocated by the BEAM.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 500000000
+              },
+              {
+                "color": "red",
+                "value": 1000000000
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 11
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_allocated_bytes{job=\"$job\", instance=\"$instance\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Memory Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of atoms currently in the atom table.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 150000
+              },
+              {
+                "color": "red",
+                "value": 300000
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 11
+      },
+      "id": 30,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_atom_count{job=\"$job\", instance=\"$instance\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Atom Count",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 17,
+      "panels": [],
+      "title": "Details",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Stats on the current memory usage.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_allocated_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Total Usage",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_atom_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Atoms",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_binary_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Binaries",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_code_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Code",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_ets_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "ETS",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_processes_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Processes",
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_memory_persistent_term_total_bytes{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Persistent Term",
+          "refId": "G"
+        }
+      ],
+      "title": "Allocated Memory",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of garbage collection events that are occurring and the number of bytes reclaimed",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Garbage Collections",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Bytes Reclaimed"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Reclaimed Bytes"
+              },
+              {
+                "id": "custom.scaleDistribution",
+                "value": {
+                  "log": 2,
+                  "type": "log"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "irate(teiserver_prom_ex_beam_stats_gc_count{job=\"$job\", instance=\"$instance\"}[$interval])",
+          "interval": "",
+          "legendFormat": "Garbage Collections",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "irate(teiserver_prom_ex_beam_stats_gc_reclaimed_bytes{job=\"$job\", instance=\"$instance\"}[$interval])",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Bytes Reclaimed",
+          "refId": "B"
+        }
+      ],
+      "title": "Garbage Collection",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Statistics regarding the normal scheduler.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Normal Run Queue (-) / Normal Tasks (+)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 36,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_active_task_count{job=\"$job\", instance=\"$instance\", type=\"normal\"}",
+          "interval": "",
+          "legendFormat": "Normal Tasks",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "0 - teiserver_prom_ex_beam_stats_run_queue_count{job=\"$job\", instance=\"$instance\", type=\"normal\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Normal Run Queue",
+          "refId": "B"
+        }
+      ],
+      "title": "Normal Scheduler Status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Statistics regarding the dirty schedulers.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Dirty Run Queue (-) / Dirty Tasks (+)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_active_task_count{job=\"$job\", instance=\"$instance\", type=\"dirty\"}",
+          "interval": "",
+          "legendFormat": "Dirty Tasks",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "0 - teiserver_prom_ex_beam_stats_run_queue_count{job=\"$job\", instance=\"$instance\", type=\"dirty\"}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Dirty Run Queue",
+          "refId": "D"
+        }
+      ],
+      "title": "Dirty Scheduler Status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of context switches that have occurred along with the number of reductions.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Reduction Count (in Millions)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Context Switches"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Context Switch Count"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 35,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "irate(teiserver_prom_ex_beam_stats_reduction_count{job=\"$job\", instance=\"$instance\"}[$interval]) / 1000000",
+          "interval": "",
+          "legendFormat": "Reductions",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "irate(teiserver_prom_ex_beam_stats_context_switch_count{job=\"$job\", instance=\"$instance\"}[$interval])",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Context Switches",
+          "refId": "B"
+        }
+      ],
+      "title": "VM Load",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of running BEAM processes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Processes",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_process_count{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Active Processes",
+          "refId": "A"
+        }
+      ],
+      "title": "Active BEAM Processes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of atoms currently in the atom table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 62
+      },
+      "id": 22,
+      "options": {},
+      "pluginVersion": "7.1.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_atom_count{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Active ports",
+          "refId": "A"
+        }
+      ],
+      "title": "Atom Table Size",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of bytes sent and received through ports.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 62
+      },
+      "id": 33,
+      "options": {},
+      "pluginVersion": "7.1.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "0 - irate(teiserver_prom_ex_beam_stats_port_io_byte_count{job=\"$job\", instance=\"$instance\", type=\"input\"}[$interval])",
+          "interval": "",
+          "legendFormat": "Data Received",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "irate(teiserver_prom_ex_beam_stats_port_io_byte_count{job=\"$job\", instance=\"$instance\", type=\"output\"}[$interval])",
+          "interval": "",
+          "legendFormat": "Data Sent",
+          "refId": "B"
+        }
+      ],
+      "title": "Port IO",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of active ETS tables.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 77
+      },
+      "id": 23,
+      "options": {},
+      "pluginVersion": "7.1.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_ets_count{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Active ETS Tables",
+          "refId": "A"
+        }
+      ],
+      "title": "ETS Tables",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-metrics-datasource",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "The number of active ports.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 77
+      },
+      "id": 20,
+      "options": {},
+      "pluginVersion": "7.1.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-metrics-datasource",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "teiserver_prom_ex_beam_stats_port_count{job=\"$job\", instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "Active Ports",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Ports",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 41,
+  "tags": [
+    "PromEx",
+    "BEAM",
+    "teiserver"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "teiserver",
+          "value": "teiserver"
+        },
+        "datasource": "VictoriaMetrics",
+        "definition": "label_values(teiserver_prom_ex_prom_ex_status_info, job)",
+        "includeAll": false,
+        "label": "Prometheus Job",
+        "name": "job",
+        "options": [],
+        "query": "label_values(teiserver_prom_ex_prom_ex_status_info, job)",
+        "refresh": 2,
+        "regex": "",
+        "sort": 6,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "host.containers.internal:4001",
+          "value": "host.containers.internal:4001"
+        },
+        "datasource": "VictoriaMetrics",
+        "definition": "label_values(teiserver_prom_ex_prom_ex_status_info, instance)",
+        "includeAll": false,
+        "label": "Application Instance",
+        "name": "instance",
+        "options": [],
+        "query": "label_values(teiserver_prom_ex_prom_ex_status_info{job=\"$job\"}, instance)",
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "auto": false,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "current": {
+          "text": "30s",
+          "value": "30s"
+        },
+        "label": "Interval",
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "15s",
+            "value": "15s"
+          },
+          {
+            "selected": true,
+            "text": "30s",
+            "value": "30s"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "15m",
+            "value": "15m"
+          },
+          {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          }
+        ],
+        "query": "15s,30s,1m,5m,15m,30m,1h",
+        "refresh": 2,
+        "type": "interval"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "",
+  "title": "Teiserver - PromEx Beam Dashboard",
+  "uid": "3357609EDA39DE372809D75E6EE92A2B",
+  "version": 2
+}
