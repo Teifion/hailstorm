@@ -92,6 +92,6 @@ defmodule Hailstorm.Lobby.JoinPart do
   end
 
   defp send_after_jitter(msg) do
-    :timer.send_after(5000 + :rand.uniform(15_000), msg)
+    :timer.send_after(1000 + :rand.uniform(4_000), msg)
   end
 end

@@ -67,17 +67,21 @@ defmodule Hailstorm.Lobby.Creator do
   end
 
   def handle_info(:spawn_members, state) do
-    lobby_size = if :rand.uniform() <= 0.1, do: 15, else: 3
-    scenario = %Scenario{
-      name: state.scenario.name,
-      worker: Hailstorm.Lobby.JoinPart,
-      worker_args: %{lobby_id: state.lobby_id},
-      vus: lobby_size,
-      rampup_duration: 15_000
-    }
+    lobby_size = Map.get(state.scenario.worker_args, :size, 15)
 
-    Logger.info("spawning #{scenario.vus} members for lobby #{state.lobby_id}")
-    Scenario.add_workers(scenario)
+    if lobby_size > 0 do
+      scenario = %Scenario{
+        name: state.scenario.name,
+        worker: Hailstorm.Lobby.JoinPart,
+        worker_args: %{lobby_id: state.lobby_id},
+        vus: lobby_size,
+        rampup_duration: 15_000
+      }
+
+      Logger.info("spawning #{scenario.vus} members for lobby #{state.lobby_id}")
+      Scenario.add_more_workers(scenario)
+    end
+
     {:ok, state}
   end
 
