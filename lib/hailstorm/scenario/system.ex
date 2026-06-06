@@ -29,12 +29,12 @@ defmodule Hailstorm.Scenario.System do
     Registry.register(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}, nil)
   end
 
-  def register_start_task(scenario_name) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)
+  def register_start_task(scenario_name, pid \\ self()) do
+    Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name, pid}, nil)
   end
 
-  def register_worker(scenario_name, pid \\ self()) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:worker, pid}, {:worker, scenario_name})
+  def register_worker(scenario_name, user_id, pid \\ self()) do
+    Registry.register(Hailstorm.ScenarioRegistry, {:worker, user_id}, {:worker, scenario_name})
   end
 
   @doc """
@@ -65,7 +65,7 @@ defmodule Hailstorm.Scenario.System do
         # This isn't much of a problem though since tearing down the supervisor
         # ensure no stray task is left behind. It'll just make a few client
         # disconnect abruptly and leave the session around in teiserver.
-        terminate_start_task(scenario_name)
+        terminate_start_tasks(scenario_name)
         terminate_workers(scenario_name)
         DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, pid)
     end
@@ -91,14 +91,16 @@ defmodule Hailstorm.Scenario.System do
       []
   end
 
-  def terminate_start_task(scenario_name) do
-    case Registry.lookup(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}) do
-      [] ->
-        nil
+  def terminate_start_tasks(scenario_name) do
+    spec = [
+      {{{:"$1", :"$2", :_}, :"$3", :_}, [{:==, :"$1", :start_task}, {:==, :"$2", scenario_name}],
+       [:"$3"]}
+    ]
 
-      [{pid, _val}] ->
-        Process.exit(pid, :shutdown)
-    end
+    Registry.select(Hailstorm.ScenarioRegistry, spec)
+    |> Enum.each(fn pid ->
+      Process.exit(pid, :shutdown)
+    end)
 
     :ok
   end

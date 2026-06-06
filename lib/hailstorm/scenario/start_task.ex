@@ -2,6 +2,12 @@ defmodule Hailstorm.Scenario.StartTask do
   use Task
   alias Hailstorm.Scenario
 
+  def start_worker_task(scenario) do
+    {:ok, _pid} =
+      Scenario.System.via_worker_sup_name(scenario.name)
+      |> DynamicSupervisor.start_child({__MODULE__, scenario})
+  end
+
   def start_link(scenario) do
     Task.start_link(__MODULE__, :start_workers, [scenario])
   end
@@ -22,9 +28,7 @@ defmodule Hailstorm.Scenario.StartTask do
   defp execute_plan([{:spawn, n} | rest], scenario) do
     Enum.each(1..n, fn _idx ->
       spec =
-        scenario.worker.child_spec(
-          Map.merge(%{scenario: scenario}, scenario.worker_args)
-        )
+        scenario.worker.child_spec(Map.merge(%{scenario: scenario}, scenario.worker_args))
         # don't restart workers (for now)
         |> Map.put(:restart, :temporary)
 

@@ -34,7 +34,9 @@ defmodule Hailstorm.Scenario do
 
   defdelegate stop_scenario(name), to: Hailstorm.Scenario.System
 
-  defdelegate add_workers(scenario), to: StartTask
+  def add_more_workers(scenario) do
+    StartTask.start_worker_task(scenario)
+  end
 
   defdelegate list_running_scenarios(), to: Hailstorm.Scenario.System
 

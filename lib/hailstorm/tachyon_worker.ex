@@ -37,7 +37,7 @@ defmodule Hailstorm.TachyonWorker do
       def handle_connect(_conn, state) do
         Logger.metadata(user_id: state.user.id, label: state.scenario.name)
         Logger.info("connected")
-        Hailstorm.Scenario.System.register_worker(state.scenario.name)
+        Hailstorm.Scenario.System.register_worker(state.scenario.name, state.user.id)
         :telemetry.execute([:hailstorm, :worker_count], %{count: 1})
         {:ok, %{state | status: :running}}
       end
@@ -97,6 +97,7 @@ defmodule Hailstorm.TachyonWorker do
       end
 
       def terminate(reason, _state) do
+        Logger.info("terminating connection because #{inspect(reason)}")
         case reason do
           {:local, _} -> nil
           {:remote, 1000, _} -> nil

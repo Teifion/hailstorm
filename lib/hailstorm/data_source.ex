@@ -40,7 +40,7 @@ defmodule Hailstorm.DataSource do
     resp = Req.post!(url, params: params, headers: headers)
 
     if resp.status != 200 do
-      Logger.error("#{resp.status} - #{inspect(resp.body)}")
+      Logger.error("failed to refresh user #{user.id}: #{resp.status} - #{inspect(resp.body)}")
       raise "Error refreshing token for user #{user.id}: #{resp.body}"
     end
 

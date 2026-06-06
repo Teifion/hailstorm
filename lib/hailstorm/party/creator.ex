@@ -64,7 +64,7 @@ defmodule Hailstorm.Party.Creator do
     }
 
     Logger.info("spawning #{scenario.vus} members for party #{state.party_id}")
-    Scenario.add_workers(scenario)
+    Scenario.add_more_workers(scenario)
     {:ok, state}
   end
 
