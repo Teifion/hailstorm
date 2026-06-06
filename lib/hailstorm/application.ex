@@ -10,7 +10,8 @@ defmodule Hailstorm.Application do
     children = [
       Hailstorm.PromEx,
       HailstormWeb.Telemetry,
-      {Hailstorm.Repo, [database: "test-users.sqlite", pool_size: 10]},
+      {Hailstorm.Repo,
+       [database: Application.get_env(:hailstorm, Hailstorm.Repo)[:sqlite_file], pool_size: 10]},
       Hailstorm.DataSource,
       {DNSCluster, query: Application.get_env(:hailstorm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hailstorm.PubSub},

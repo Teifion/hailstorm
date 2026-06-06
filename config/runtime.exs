@@ -25,6 +25,8 @@ config :hailstorm, :tachyon,
   port: System.get_env("TACHYON_PORT", "4000") |> String.to_integer(),
   use_tls?: System.get_env("TACHYON_USE_TLS", "false") |> Hailstorm.ConfigHelpers.to_bool()
 
+config :hailstorm, Hailstorm.Repo, sqlite_file: "test-users.sqlite"
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
