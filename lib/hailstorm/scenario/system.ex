@@ -29,6 +29,10 @@ defmodule Hailstorm.Scenario.System do
     Registry.register(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}, nil)
   end
 
+  def register_start_task(scenario_name) do
+    Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)
+  end
+
   def register_worker(scenario_name, pid \\ self()) do
     Registry.register(Hailstorm.ScenarioRegistry, {:worker, pid}, {:worker, scenario_name})
   end
@@ -51,6 +55,17 @@ defmodule Hailstorm.Scenario.System do
 
       [{pid, _}] ->
         Logger.info("terminating scenario #{scenario_name} under #{inspect(pid)}")
+        # because we want to give the worker some time to properly disconnect
+        # we first terminate them before removing the entire supervisor.
+        # This means we should first stop the start task in case it is still
+        # spawning additional workers
+        # There is a race there since a worker registers upon connection, so
+        # there could be some workers that are starting but not yet registered
+        # when we terminate workers.
+        # This isn't much of a problem though since tearing down the supervisor
+        # ensure no stray task is left behind. It'll just make a few client
+        # disconnect abruptly and leave the session around in teiserver.
+        terminate_start_task(scenario_name)
         terminate_workers(scenario_name)
         DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, pid)
     end
@@ -74,6 +89,18 @@ defmodule Hailstorm.Scenario.System do
     :error, {:noproc, _} ->
       # same
       []
+  end
+
+  def terminate_start_task(scenario_name) do
+    case Registry.lookup(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}) do
+      [] ->
+        nil
+
+      [{pid, _val}] ->
+        Process.exit(pid, :shutdown)
+    end
+
+    :ok
   end
 
   def terminate_workers(scenario_name) do
