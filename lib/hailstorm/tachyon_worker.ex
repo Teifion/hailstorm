@@ -25,7 +25,11 @@ defmodule Hailstorm.TachyonWorker do
           %{scenario: arg.scenario, data: arg.data, status: :connecting, retry_conn_count: 0}
           |> Map.merge(init_state(arg))
 
-        WebSockex.start_link("ws://localhost:4000/tachyon", __MODULE__, state, conn_opts)
+        cfg = Application.get_env(:hailstorm, :tachyon)
+        scheme = if cfg[:use_tls?], do: "wss://", else: "ws://"
+        url = "#{scheme}#{cfg[:host]}:#{cfg[:port]}/tachyon"
+
+        WebSockex.start_link(url, __MODULE__, state, conn_opts)
       end
 
       def handle_connect(_conn, state) do
@@ -42,8 +46,9 @@ defmodule Hailstorm.TachyonWorker do
 
           state.status == :connecting && Map.get(connection_status_map.reason, :code) == 401 &&
               state.retry_conn_count == 0 ->
-            host = "http://localhost:4000"
-            url = "#{host}/oauth/token"
+            cfg = Application.get_env(:hailstorm, :tachyon)
+            scheme = if cfg[:use_tls?], do: "https://", else: "http://"
+            url = "#{scheme}#{cfg[:host]}:#{cfg[:port]}/oauth/token"
 
             Logger.debug("refreshing access token")
 

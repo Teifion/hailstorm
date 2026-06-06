@@ -20,6 +20,11 @@ if System.get_env("PHX_SERVER") do
   config :hailstorm, HailstormWeb.Endpoint, server: true
 end
 
+config :hailstorm, :tachyon,
+  host: System.get_env("TACHYON_HOST", "localhost"),
+  port: System.get_env("TACHYON_PORT", "4000") |> String.to_integer(),
+  use_tls?: System.get_env("TACHYON_USE_TLS", "false") |> Hailstorm.ConfigHelpers.to_bool()
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
