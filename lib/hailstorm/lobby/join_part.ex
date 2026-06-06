@@ -18,13 +18,13 @@ defmodule Hailstorm.Lobby.JoinPart do
     case parsed do
       %{"commandId" => "lobby/join", "type" => "response", "status" => "success", "data" => data} ->
         cond do
-          get_in(data, ["spectators", to_string(state.data.id)]) != nil ->
+          get_in(data, ["spectators", to_string(state.user.id)]) != nil ->
             msg = TachyonWorker.request("lobby/joinQueue") |> Jason.encode!()
             {:reply, {:text, msg}, Map.replace!(state, :lobby_state, :spectating)}
         end
 
       %{"commandId" => "lobby/updated", "type" => "event", "data" => data} ->
-        p_id = to_string(state.data.id)
+        p_id = to_string(state.user.id)
 
         cond do
           get_in(data, ["players", p_id]) != nil ->

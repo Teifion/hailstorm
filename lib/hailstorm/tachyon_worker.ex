@@ -11,9 +11,11 @@ defmodule Hailstorm.TachyonWorker do
 
       @doc false
       def start_link(arg) do
+        {:ok, user} = Hailstorm.DataSource.acquire_user()
+
         conn_opts = [
           extra_headers: [
-            {"authorization", "Bearer #{arg.data.access_token}"},
+            {"authorization", "Bearer #{user.access_token}"},
             {"sec-websocket-protocol", "v0.tachyon"}
           ],
           socket_connect_timeout: 10_000,
@@ -22,7 +24,7 @@ defmodule Hailstorm.TachyonWorker do
         ]
 
         state =
-          %{scenario: arg.scenario, data: arg.data, status: :connecting, retry_conn_count: 0}
+          %{scenario: arg.scenario, user: user, status: :connecting, retry_conn_count: 0}
           |> Map.merge(init_state(arg))
 
         cfg = Application.get_env(:hailstorm, :tachyon)
@@ -33,7 +35,7 @@ defmodule Hailstorm.TachyonWorker do
       end
 
       def handle_connect(_conn, state) do
-        Logger.metadata(user_id: state.data.id, label: state.scenario.name)
+        Logger.metadata(user_id: state.user.id, label: state.scenario.name)
         Logger.info("connected")
         :telemetry.execute([:hailstorm, :worker_count], %{count: 1})
         {:ok, %{state | status: :running}}
@@ -46,39 +48,11 @@ defmodule Hailstorm.TachyonWorker do
 
           state.status == :connecting && Map.get(connection_status_map.reason, :code) == 401 &&
               state.retry_conn_count == 0 ->
-            cfg = Application.get_env(:hailstorm, :tachyon)
-            scheme = if cfg[:use_tls?], do: "https://", else: "http://"
-            url = "#{scheme}#{cfg[:host]}:#{cfg[:port]}/oauth/token"
-
-            Logger.debug("refreshing access token")
-
-            query =
-              URI.encode_query(%{
-                grant_type: "refresh_token",
-                client_id: "generic_lobby",
-                refresh_token: state.data.refresh_token
-              })
-
-            headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-
-            resp = HTTPoison.post!(url, query, headers, hackney: [pool: :http_pool])
-
-            if resp.status_code != 200 do
-              raise "Error refreshing token for user #{state.data.id}: #{resp.body}"
-            end
-
-            new_data = Jason.decode!(resp.body)
-
-            {:ok, new_user} =
-              Hailstorm.TestUser.update_token(
-                state.data,
-                new_data["access_token"],
-                new_data["refresh_token"]
-              )
+            new_user = Hailstorm.DataSource.refresh_user(state.user)
 
             state =
               state
-              |> Map.replace!(:data, new_user)
+              |> Map.replace!(:user, new_user)
               |> Map.update!(:retry_conn_count, &(&1 + 1))
 
             new_conn =

@@ -11,11 +11,17 @@ defmodule Hailstorm.Scenario.Supervisor do
 
   @impl true
   def init(scenario) do
+    Scenario.System.register_scenario(scenario.name)
+
     children = [
-      {Hailstorm.Scenario.Reaper, scenario},
       {DynamicSupervisor,
        name: Scenario.System.via_worker_sup_name(scenario.name), strategy: :one_for_one},
-      {Scenario.StartTask, scenario}
+      {Scenario.StartTask, scenario},
+      {Task,
+       fn ->
+         :timer.sleep(scenario.duration)
+         Task.start(Scenario.System, :stop_scenario, [scenario.name])
+       end}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -29,4 +29,8 @@ defmodule Hailstorm.TestUser do
     Ecto.Changeset.change(user, access_token: access, refresh_token: refresh)
     |> Repo.update()
   end
+
+  def get(id) do
+    Repo.get!(__MODULE__, id)
+  end
 end

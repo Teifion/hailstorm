@@ -21,7 +21,7 @@ defmodule Hailstorm.Application do
       # Start a worker by calling: Hailstorm.Worker.start_link(arg)
       # {Hailstorm.Worker, arg},
       # Start to serve requests, typically the last entry
-      HailstormWeb.Endpoint
+      # HailstormWeb.Endpoint
     ]
 
     :ok = :hackney_pool.start_pool(:http_pool, timeout: 15000, max_connections: 100)

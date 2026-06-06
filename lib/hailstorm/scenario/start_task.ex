@@ -1,7 +1,6 @@
 defmodule Hailstorm.Scenario.StartTask do
   use Task
   alias Hailstorm.Scenario
-  alias Hailstorm.DataSource
 
   def start_link(scenario) do
     Task.start_link(__MODULE__, :start_workers, [scenario])
@@ -14,36 +13,31 @@ defmodule Hailstorm.Scenario.StartTask do
 
   def add_workers(scenario) do
     plan = rampup(scenario.vus, scenario.rampup_duration, scenario.rampup_step)
-    {:ok, data} = DataSource.get_users(scenario.vus)
-    execute_plan(plan, data, scenario)
-    data
+    execute_plan(plan, scenario)
+    :ok
   end
 
-  defp execute_plan([], _, _), do: :ok
+  defp execute_plan([], _), do: :ok
 
-  defp execute_plan([{:spawn, n} | rest], data, scenario) do
-    {data, rest_data} = Enum.split(data, n)
-
-    for {d, _idx} <- data do
+  defp execute_plan([{:spawn, n} | rest], scenario) do
+    Enum.each(1..n, fn _idx ->
       spec =
         scenario.worker.child_spec(
-          Map.merge(%{scenario: scenario, data: d}, scenario.worker_args)
+          Map.merge(%{scenario: scenario}, scenario.worker_args)
         )
         # don't restart workers (for now)
         |> Map.put(:restart, :temporary)
 
-      {:ok, pid} =
+      {:ok, _pid} =
         DynamicSupervisor.start_child(Scenario.System.via_worker_sup_name(scenario.name), spec)
+    end)
 
-      Scenario.Reaper.monitor_worker(scenario.name, pid)
-    end
-
-    execute_plan(rest, rest_data, scenario)
+    execute_plan(rest, scenario)
   end
 
-  defp execute_plan([{:sleep, t} | rest], data, scenario) do
+  defp execute_plan([{:sleep, t} | rest], scenario) do
     :timer.sleep(t)
-    execute_plan(rest, data, scenario)
+    execute_plan(rest, scenario)
   end
 
   @doc """

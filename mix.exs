@@ -64,6 +64,7 @@ defmodule Hailstorm.MixProject do
       {:websockex, "~> 0.5.0", hex: :websockex_wt},
       {:uuidv7, "~> 1.0"},
       {:httpoison, "~> 2.0"},
+      {:req, "~> 0.5"},
       {:ecto, "~> 3.13"},
       {:ecto_sqlite3, "~> 0.17"}
     ]

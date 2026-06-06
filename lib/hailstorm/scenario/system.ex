@@ -1,6 +1,8 @@
 defmodule Hailstorm.Scenario.System do
   use Supervisor
 
+  require Logger
+
   def start_link(init_arg) do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
@@ -21,11 +23,25 @@ defmodule Hailstorm.Scenario.System do
     {:via, Registry, {Hailstorm.ScenarioRegistry, scenario_name, scenario_name}}
   end
 
-  def via_reaper_name(scenario_name), do: via_scenario_name({:reaper, scenario_name})
   def via_worker_sup_name(scenario_name), do: via_scenario_name({:supervisor, scenario_name})
 
   def register_start_task(scenario_name) do
     Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)
+  end
+
+  def register_scenario(scenario_name) do
+    Registry.register(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}, nil)
+  end
+
+  def stop_scenario(scenario_name) do
+    case Registry.lookup(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}) do
+      [] ->
+        nil
+
+      [{pid, _}] ->
+        Logger.info("terminating scenario #{scenario_name} under #{inspect(pid)}")
+        DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, pid)
+    end
   end
 
   def start_task_pid(scenario_name) do

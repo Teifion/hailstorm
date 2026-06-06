@@ -50,7 +50,7 @@ defmodule Hailstorm.Lobby.Creator do
     teams = Enum.map(1..16, fn _ -> %{maxPlayers: 1} end)
 
     data = %{
-      name: "test lobby #{state.data.id}",
+      name: "test lobby #{state.user.id}",
       mapName: "Avalanche 3.4",
       allyTeamConfig: [
         %{maxTeams: 16, startBox: %{top: 0, bottom: 0, left: 1, right: 1}, teams: teams},
@@ -67,11 +67,12 @@ defmodule Hailstorm.Lobby.Creator do
   end
 
   def handle_info(:spawn_members, state) do
+    lobby_size = if :rand.uniform() <= 0.1, do: 15, else: 3
     scenario = %Scenario{
       name: state.scenario.name,
       worker: Hailstorm.Lobby.JoinPart,
       worker_args: %{lobby_id: state.lobby_id},
-      vus: 15,
+      vus: lobby_size,
       rampup_duration: 15_000
     }
 

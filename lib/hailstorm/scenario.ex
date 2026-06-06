@@ -10,10 +10,10 @@ defmodule Hailstorm.Scenario do
     rampup_step: 1
   ]
 
-  alias Hailstorm.Scenario.{Reaper, StartTask, System}
+  alias Hailstorm.Scenario.{StartTask, System}
 
   def start_scenario(scenario) do
-    Hailstorm.DataSource.reset()
+    # Hailstorm.DataSource.reset()
     result =
       DynamicSupervisor.start_child(
         Hailstorm.TopLevelScenarioSupervisor,
@@ -21,8 +21,7 @@ defmodule Hailstorm.Scenario do
       )
 
     case result do
-      {:ok, pid} ->
-        Reaper.monitor_scenario(scenario.name, pid)
+      {:ok, _pid} ->
         result
 
       {:error, {:already_started, pid}} ->
@@ -34,19 +33,7 @@ defmodule Hailstorm.Scenario do
     end
   end
 
-  def abort_scenario(%__MODULE__{name: name}), do: abort_scenario(name)
-
-  def abort_scenario(scenario_name) when is_binary(scenario_name) do
-    case System.scenario_pid(scenario_name) do
-      nil -> nil
-      p -> abort_scenario(p)
-    end
-  end
-
-  def abort_scenario(scenario_pid) when is_pid(scenario_pid),
-    do: DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, scenario_pid)
-
-  defdelegate stop_scenario(name), to: Hailstorm.Scenario.Reaper
+  defdelegate stop_scenario(name), to: Hailstorm.Scenario.System
 
   defdelegate add_workers(scenario), to: StartTask
 
