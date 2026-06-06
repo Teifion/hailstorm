@@ -15,16 +15,17 @@
 
 set -euo pipefail
 
-jq -r 'to_entries | map(.value) | @csv' <"$1" >/tmp/test-users.csv
+headers='["id","name","email","access_token","refresh_token"]'
 
-sqlite3 test-users.sqlite <<EOF
+jq -r --argjson h "$headers" '([$h[] as $k | .[$k]] | @csv)' < "$1" > /tmp/test-users.csv
+
+sqlite3 "${2:-"test-users.sqlite"}" <<EOF
 CREATE TABLE IF NOT EXISTS test_user
-(
-  id INTEGER
-  , name TEXT
-  , email TEXT
-  , access_token TEXT
-  , refresh_token TEXT
+( id INTEGER
+, name TEXT
+, email TEXT
+, access_token TEXT
+, refresh_token TEXT
 );
 
 DELETE from test_user;
