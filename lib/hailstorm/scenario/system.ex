@@ -25,12 +25,23 @@ defmodule Hailstorm.Scenario.System do
 
   def via_worker_sup_name(scenario_name), do: via_scenario_name({:supervisor, scenario_name})
 
-  def register_start_task(scenario_name) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}, nil)
-  end
-
   def register_scenario(scenario_name) do
     Registry.register(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}, nil)
+  end
+
+  def register_worker(scenario_name, pid \\ self()) do
+    Registry.register(Hailstorm.ScenarioRegistry, {:worker, pid}, {:worker, scenario_name})
+  end
+
+  @doc """
+  list of ws connection pid
+  """
+  def list_workers(scenario_name) do
+    spec = [
+      {{:_, :"$2", {:"$3", :"$4"}}, [{:==, :"$3", :worker}, {:==, :"$4", scenario_name}], [:"$2"]}
+    ]
+
+    Registry.select(Hailstorm.ScenarioRegistry, spec)
   end
 
   def stop_scenario(scenario_name) do
@@ -40,14 +51,8 @@ defmodule Hailstorm.Scenario.System do
 
       [{pid, _}] ->
         Logger.info("terminating scenario #{scenario_name} under #{inspect(pid)}")
+        terminate_workers(scenario_name)
         DynamicSupervisor.terminate_child(Hailstorm.TopLevelScenarioSupervisor, pid)
-    end
-  end
-
-  def start_task_pid(scenario_name) do
-    case Registry.lookup(Hailstorm.ScenarioRegistry, {:start_task, scenario_name}) do
-      [{pid, _}] -> pid
-      _ -> nil
     end
   end
 
@@ -69,5 +74,27 @@ defmodule Hailstorm.Scenario.System do
     :error, {:noproc, _} ->
       # same
       []
+  end
+
+  def terminate_workers(scenario_name) do
+    pids = list_workers(scenario_name)
+
+    Task.async(fn ->
+      Enum.map(pids, fn pid ->
+        ref = Process.monitor(pid)
+        Hailstorm.TachyonWorker.shutdown(pid)
+        ref
+      end)
+      |> wait_downs()
+    end)
+    |> Task.await()
+  end
+
+  defp wait_downs([]), do: :ok
+
+  defp wait_downs([ref | rest]) do
+    receive do
+      {:DOWN, ^ref, :process, _obj, _reason} -> wait_downs(rest)
+    end
   end
 end

@@ -61,7 +61,7 @@ defmodule Hailstorm.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:websockex, "~> 0.5.0", hex: :websockex_wt},
+      {:websockex, "~> 0.5.1"},
       {:uuidv7, "~> 1.0"},
       {:httpoison, "~> 2.0"},
       {:req, "~> 0.5"},

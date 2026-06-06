@@ -13,7 +13,6 @@ defmodule Hailstorm.Scenario do
   alias Hailstorm.Scenario.{StartTask, System}
 
   def start_scenario(scenario) do
-    # Hailstorm.DataSource.reset()
     result =
       DynamicSupervisor.start_child(
         Hailstorm.TopLevelScenarioSupervisor,

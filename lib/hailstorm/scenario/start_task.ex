@@ -7,7 +7,6 @@ defmodule Hailstorm.Scenario.StartTask do
   end
 
   def start_workers(scenario) do
-    Scenario.System.register_start_task(scenario.name)
     add_workers(scenario)
   end
 

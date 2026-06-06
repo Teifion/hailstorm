@@ -37,6 +37,7 @@ defmodule Hailstorm.TachyonWorker do
       def handle_connect(_conn, state) do
         Logger.metadata(user_id: state.user.id, label: state.scenario.name)
         Logger.info("connected")
+        Hailstorm.Scenario.System.register_worker(state.scenario.name)
         :telemetry.execute([:hailstorm, :worker_count], %{count: 1})
         {:ok, %{state | status: :running}}
       end
@@ -107,7 +108,6 @@ defmodule Hailstorm.TachyonWorker do
         :telemetry.execute([:hailstorm, :worker_count], %{count: -1})
       end
 
-      def shutdown(pid), do: WebSockex.cast(pid, :shutdown)
       def init_state(arg), do: %{}
 
       def handle_frame(_, state), do: {:ok, state}
@@ -115,6 +115,8 @@ defmodule Hailstorm.TachyonWorker do
       defoverridable init_state: 1, handle_frame: 2
     end
   end
+
+  def shutdown(pid), do: WebSockex.cast(pid, :shutdown)
 
   def request(cmd_id),
     do: %{commandId: cmd_id, messageId: to_string(UUIDv7.generate()), type: "request"}
