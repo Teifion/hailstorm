@@ -64,7 +64,6 @@ defmodule Hailstorm.MixProject do
       {:req, "~> 0.5"},
       {:ecto, "~> 3.13"},
       {:ecto_sqlite3, "~> 0.17"},
-
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
 
       # Deps we use but will replace

@@ -1,6 +1,8 @@
 defmodule Hailstorm.Scenario.StartTask do
-  use Task
+  @moduledoc false
   alias Hailstorm.Scenario
+
+  use Task
 
   def start_worker_task(scenario) do
     {:ok, _pid} =
@@ -53,9 +55,10 @@ defmodule Hailstorm.Scenario.StartTask do
             {:spawn, non_neg_integer()} | {:sleep, integer()}
           ]
   def rampup(n, t, step \\ 1) do
-    cond do
-      t == 0 || n == 1 -> [{:spawn, n}]
-      true -> do_rampup(n, t, step, t / (n - 1), 0, [])
+    if t == 0 || n == 1 do
+      [{:spawn, n}]
+    else
+      do_rampup(n, t, step, t / (n - 1), 0, [])
     end
   end
 

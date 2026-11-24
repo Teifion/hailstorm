@@ -131,10 +131,6 @@
           {Credo.Check.Warning.Dbg, []},
           {Credo.Check.Warning.ExpensiveEmptyEnumCheck, []},
           {Credo.Check.Warning.IExPry, []},
-          {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig,
-           [
-             metadata_keys: [:request_id, :user_id, :pid, :actor_type, :actor_id]
-           ]},
           {Credo.Check.Warning.OperationOnSameValues, []},
           {Credo.Check.Warning.OperationWithConstantResult, []},
           {Credo.Check.Warning.RaiseInsideRescue, []},
@@ -177,7 +173,7 @@
           # Checks that are enabled in Teiserver but disabled here (for now at any rate)
           {Credo.Check.Consistency.UnusedVariableNames, [force: :meaningful]},
           {Credo.Check.Consistency.MultiAliasImportRequireUse, []},
-
+          {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig, []},
 
           #
           # Controversial and experimental checks (opt-in, just move the check to `:enabled`

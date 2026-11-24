@@ -14,6 +14,7 @@ defmodule HailstormWeb.ConnCase do
   by setting `use HailstormWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
+  alias Phoenix.ConnTest
 
   use ExUnit.CaseTemplate
 
@@ -32,6 +33,6 @@ defmodule HailstormWeb.ConnCase do
   end
 
   setup _tags do
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: ConnTest.build_conn()}
   end
 end

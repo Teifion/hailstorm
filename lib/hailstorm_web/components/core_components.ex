@@ -296,7 +296,6 @@ defmodule TeiserverWeb.CoreComponents do
     end
   end
 
-
   @doc """
   This is an input component from a Phoenix 1.8 project using tailwind
   styling for use in tailwind pages. Long term this is intended to be

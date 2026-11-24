@@ -1,6 +1,9 @@
 defmodule Hailstorm.Scenario.Supervisor do
-  use Supervisor
+  @moduledoc false
+
   alias Hailstorm.Scenario
+
+  use Supervisor
 
   def start_link(scenario) do
     Supervisor.start_link(__MODULE__, scenario,
@@ -8,7 +11,7 @@ defmodule Hailstorm.Scenario.Supervisor do
     )
   end
 
-  @impl true
+  @impl Supervisor
   def init(scenario) do
     Scenario.System.register_scenario(scenario.name)
 

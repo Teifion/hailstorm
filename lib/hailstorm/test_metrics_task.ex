@@ -1,4 +1,6 @@
 defmodule Hailstorm.TestMetricsTask do
+  @moduledoc false
+
   use Task
 
   def start_link(step) do

@@ -3,9 +3,11 @@ defmodule Hailstorm.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  alias HailstormWeb.Endpoint
+
   use Application
 
-  @impl true
+  @impl Application
   def start(_type, _args) do
     children = [
       Hailstorm.PromEx,
@@ -33,9 +35,9 @@ defmodule Hailstorm.Application do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
-  @impl true
+  @impl Application
   def config_change(changed, _new, removed) do
-    HailstormWeb.Endpoint.config_change(changed, removed)
+    Endpoint.config_change(changed, removed)
     :ok
   end
 end

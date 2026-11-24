@@ -1,9 +1,13 @@
 defmodule Hailstorm.Monitoring do
+  @moduledoc false
+
+  alias Hailstorm.Scenario
+
   use PromEx.Plugin
 
   @worker_count_metrics_event_name [:prom_ex, :plugin, :hailstorm, :worker]
 
-  @impl true
+  @impl Plugin
   def event_metrics(_opts) do
     Event.build(
       :hailstorm_even_metrics,
@@ -18,7 +22,7 @@ defmodule Hailstorm.Monitoring do
     )
   end
 
-  @impl true
+  @impl Plugin
   def polling_metrics(opts) do
     poll_rate = Keyword.get(opts, :poll_rate, 1_000)
 
@@ -44,8 +48,8 @@ defmodule Hailstorm.Monitoring do
   end
 
   @doc false
-  def execute_hailstorm_worker_metrics() do
-    count = Hailstorm.Scenario.count_workers()
+  def execute_hailstorm_worker_metrics do
+    count = Scenario.count_workers()
 
     :telemetry.execute(@worker_count_metrics_event_name, %{count: count}, %{})
   end
