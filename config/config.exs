@@ -33,7 +33,7 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.1.7",
+  version: "4.1.12",
   hailstorm: [
     args: ~w(
       --input=assets/css/app.css
@@ -56,7 +56,6 @@ config :hailstorm, Hailstorm.PromEx,
   drop_metrics_groups: [],
   grafana: :disabled,
   metrics_server: :disabled
-
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

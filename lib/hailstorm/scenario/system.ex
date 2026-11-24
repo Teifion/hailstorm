@@ -1,4 +1,9 @@
 defmodule Hailstorm.Scenario.System do
+  @moduledoc false
+
+  alias Hailstorm.ScenarioRegistry
+  alias Hailstorm.TachyonWorker
+
   use Supervisor
 
   require Logger
@@ -7,11 +12,11 @@ defmodule Hailstorm.Scenario.System do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
 
-  @impl true
+  @impl Supervisor
   def init(_) do
     children = [
       # to register individual scenarios
-      {Registry, name: Hailstorm.ScenarioRegistry, keys: :unique},
+      {Registry, name: ScenarioRegistry, keys: :unique},
       # for the toplevel scenarios
       {DynamicSupervisor, name: Hailstorm.TopLevelScenarioSupervisor}
     ]
@@ -20,21 +25,21 @@ defmodule Hailstorm.Scenario.System do
   end
 
   def via_scenario_name(scenario_name) do
-    {:via, Registry, {Hailstorm.ScenarioRegistry, scenario_name, scenario_name}}
+    {:via, Registry, {ScenarioRegistry, scenario_name, scenario_name}}
   end
 
   def via_worker_sup_name(scenario_name), do: via_scenario_name({:supervisor, scenario_name})
 
   def register_scenario(scenario_name) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}, nil)
+    Registry.register(ScenarioRegistry, {:scenario, scenario_name}, nil)
   end
 
   def register_start_task(scenario_name, pid \\ self()) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name, pid}, nil)
+    Registry.register(ScenarioRegistry, {:start_task, scenario_name, pid}, nil)
   end
 
-  def register_worker(scenario_name, user_id, pid \\ self()) do
-    Registry.register(Hailstorm.ScenarioRegistry, {:worker, user_id}, {:worker, scenario_name})
+  def register_worker(scenario_name, user_id, _pid \\ self()) do
+    Registry.register(ScenarioRegistry, {:worker, user_id}, {:worker, scenario_name})
   end
 
   @doc """
@@ -45,11 +50,11 @@ defmodule Hailstorm.Scenario.System do
       {{:_, :"$2", {:"$3", :"$4"}}, [{:==, :"$3", :worker}, {:==, :"$4", scenario_name}], [:"$2"]}
     ]
 
-    Registry.select(Hailstorm.ScenarioRegistry, spec)
+    Registry.select(ScenarioRegistry, spec)
   end
 
   def stop_scenario(scenario_name) do
-    case Registry.lookup(Hailstorm.ScenarioRegistry, {:scenario, scenario_name}) do
+    case Registry.lookup(ScenarioRegistry, {:scenario, scenario_name}) do
       [] ->
         nil
 
@@ -72,14 +77,14 @@ defmodule Hailstorm.Scenario.System do
   end
 
   def scenario_pid(scenario_name) do
-    case Registry.lookup(Hailstorm.ScenarioRegistry, scenario_name) do
+    case Registry.lookup(ScenarioRegistry, scenario_name) do
       [{pid, _}] -> pid
       _ -> nil
     end
   end
 
-  def list_running_scenarios() do
-    Registry.select(Hailstorm.ScenarioRegistry, [{{:_, :_, :"$1"}, [], [:"$1"]}])
+  def list_running_scenarios do
+    Registry.select(ScenarioRegistry, [{{:_, :_, :"$1"}, [], [:"$1"]}])
     |> Enum.filter(fn x -> is_binary(x) end)
   catch
     :error, %ArgumentError{} ->
@@ -97,7 +102,7 @@ defmodule Hailstorm.Scenario.System do
        [:"$3"]}
     ]
 
-    Registry.select(Hailstorm.ScenarioRegistry, spec)
+    Registry.select(ScenarioRegistry, spec)
     |> Enum.each(fn pid ->
       Process.exit(pid, :shutdown)
     end)
@@ -111,7 +116,7 @@ defmodule Hailstorm.Scenario.System do
     Task.async(fn ->
       Enum.map(pids, fn pid ->
         ref = Process.monitor(pid)
-        Hailstorm.TachyonWorker.shutdown(pid)
+        TachyonWorker.shutdown(pid)
         ref
       end)
       |> wait_downs()

@@ -1,4 +1,8 @@
 defmodule Hailstorm.Scenario do
+  @moduledoc false
+
+  alias Hailstorm.Scenario.StartTask
+
   @enforce_keys [:name, :worker]
   defstruct [
     :name,
@@ -9,8 +13,6 @@ defmodule Hailstorm.Scenario do
     rampup_duration: 0,
     rampup_step: 1
   ]
-
-  alias Hailstorm.Scenario.{StartTask, System}
 
   def start_scenario(scenario) do
     result =
@@ -40,7 +42,7 @@ defmodule Hailstorm.Scenario do
 
   defdelegate list_running_scenarios(), to: Hailstorm.Scenario.System
 
-  def count_workers() do
+  def count_workers do
     list_running_scenarios()
     |> Enum.map(&count_workers/1)
     |> Enum.sum()
@@ -49,7 +51,9 @@ defmodule Hailstorm.Scenario do
   def count_workers(%__MODULE__{} = scenario), do: count_workers(scenario.name)
 
   def count_workers(name) do
-    DynamicSupervisor.count_children(Hailstorm.Scenario.System.via_worker_sup_name(name))
+    name
+    |> Hailstorm.Scenario.System.via_worker_sup_name()
+    |> DynamicSupervisor.count_children()
     |> Map.get(:workers)
   catch
     :error, {:noproc, _} -> 0

@@ -3,15 +3,20 @@ defmodule Hailstorm.TachyonWorker do
   abstract away the boilerplate of connection and termination for tachyon
   """
 
+  alias Ecto.UUID
+
   defmacro __using__(_opts) do
     quote location: :keep do
+      alias Hailstorm.DataSource
+      alias Hailstorm.TachyonWorker
+
       use WebSockex
 
       require Logger
 
       @doc false
       def start_link(arg) do
-        {:ok, user} = Hailstorm.DataSource.acquire_user()
+        {:ok, user} = DataSource.acquire_user()
 
         conn_opts = [
           extra_headers: [
@@ -49,7 +54,7 @@ defmodule Hailstorm.TachyonWorker do
 
           state.status == :connecting && Map.get(connection_status_map.reason, :code) == 401 &&
               state.retry_conn_count == 0 ->
-            new_user = Hailstorm.DataSource.refresh_user(state.user)
+            new_user = DataSource.refresh_user(state.user)
 
             state =
               state
@@ -86,7 +91,7 @@ defmodule Hailstorm.TachyonWorker do
       def handle_pong(_ping_frame, state), do: {:ok, state}
 
       def handle_cast(:shutdown, state) do
-        msg = Hailstorm.TachyonWorker.request("system/disconnect") |> Jason.encode!()
+        msg = TachyonWorker.request("system/disconnect") |> Jason.encode!()
         WebSockex.cast(self(), :do_shutdown)
         {:reply, {:text, msg}, state}
       end
@@ -98,6 +103,7 @@ defmodule Hailstorm.TachyonWorker do
 
       def terminate(reason, _state) do
         Logger.info("terminating connection because #{inspect(reason)}")
+
         case reason do
           {:local, _} -> nil
           {:remote, 1000, _} -> nil
@@ -120,7 +126,7 @@ defmodule Hailstorm.TachyonWorker do
   def shutdown(pid), do: WebSockex.cast(pid, :shutdown)
 
   def request(cmd_id),
-    do: %{commandId: cmd_id, messageId: to_string(UUIDv7.generate()), type: "request"}
+    do: %{commandId: cmd_id, messageId: to_string(UUID.generate(version: 7)), type: "request"}
 
   def request(cmd_id, data) do
     request(cmd_id)

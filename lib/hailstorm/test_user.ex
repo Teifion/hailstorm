@@ -1,6 +1,9 @@
 defmodule Hailstorm.TestUser do
-  use Ecto.Schema
+  alias Ecto.Changeset
   alias Hailstorm.Repo
+
+  use Ecto.Schema
+
   import Ecto.Query
 
   @type t :: %__MODULE__{
@@ -20,13 +23,13 @@ defmodule Hailstorm.TestUser do
     field(:refresh_token, :string)
   end
 
-  def all() do
+  def all do
     from(u in __MODULE__, order_by: [asc: u.name])
     |> Repo.all()
   end
 
   def update_token(user, access, refresh) do
-    Ecto.Changeset.change(user, access_token: access, refresh_token: refresh)
+    Changeset.change(user, access_token: access, refresh_token: refresh)
     |> Repo.update()
   end
 

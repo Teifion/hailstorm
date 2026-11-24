@@ -1,80 +1,261 @@
-defmodule HailstormWeb.CoreComponents do
+defmodule TeiserverWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
-
-  At first glance, this module may seem daunting, but its goal is to provide
-  core building blocks for your application, such as tables, forms, and
-  inputs. The components consist mostly of markup and are well-documented
-  with doc strings and declarative assigns. You may customize and style
-  them in any way you want, based on your application growth and needs.
-
-  The foundation for styling is Tailwind CSS, a utility-first CSS framework,
-  augmented with daisyUI, a Tailwind CSS plugin that provides UI components
-  and themes. Here are useful references:
-
-    * [daisyUI](https://daisyui.com/docs/intro/) - a good place to get
-      started and see the available components.
-
-    * [Tailwind CSS](https://tailwindcss.com) - the foundational framework
-      we build on. You will use it for layout, sizing, flexbox, grid, and
-      spacing.
-
-    * [Heroicons](https://heroicons.com) - see `icon/1` for usage.
-
-    * [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html) -
-      the component system used by Phoenix. Some components, such as `<.link>`
-      and `<.form>`, are defined there.
-
   """
-  use Phoenix.Component
 
+  alias Fontawesome
+  alias Phoenix.Component
+  alias Phoenix.HTML.Form
+  alias Phoenix.HTML.FormField
   alias Phoenix.LiveView.JS
+
+  use Phoenix.Component
+  use Gettext, backend: TeiserverWeb.Gettext
+
+  @doc """
+  Renders a modal.
+  ## Examples
+      <.modal id="confirm-modal">
+        Are you sure?
+        <:confirm>OK</:confirm>
+        <:cancel>Cancel</:cancel>
+      </.modal>
+  JS commands may be passed to the `:on_cancel` and `on_confirm` attributes
+  for the caller to react to each button press, for example:
+      <.modal id="confirm" on_confirm={JS.push("delete")} on_cancel={JS.navigate(~p"/posts")}>
+        Are you sure you?
+        <:confirm>OK</:confirm>
+        <:cancel>Cancel</:cancel>
+      </.modal>
+  """
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :on_cancel, JS, default: %JS{}
+  attr :on_confirm, JS, default: %JS{}
+  slot :inner_block, required: true
+  slot :title
+  slot :subtitle
+  slot :confirm
+  slot :cancel
+
+  def modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      phx-mounted={@show && show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+      class="relative z-50 hidden"
+    >
+      <div id={"#{@id}-bg"} class="fixed inset-0 bg-zinc-50/90 transition-opacity" aria-hidden="true" />
+      <div
+        class="fixed inset-0 overflow-y-auto"
+        aria-labelledby={"#{@id}-title"}
+        aria-describedby={"#{@id}-description"}
+        role="dialog"
+        aria-modal="true"
+        tabindex="0"
+      >
+        <div class="flex min-h-full items-center justify-center">
+          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
+            <.focus_wrap
+              id={"#{@id}-container"}
+              phx-mounted={@show && show_modal(@id)}
+              phx-window-keydown={hide_modal(@on_cancel, @id)}
+              phx-key="escape"
+              phx-click-away={hide_modal(@on_cancel, @id)}
+              class="hidden relative rounded-2xl bg-base-100 p-4 p-14 shadow-lg shadow-zinc-700/10 ring-1 ring-zinc-700/10 transition"
+            >
+              <div class="absolute top-6 right-5">
+                <button
+                  phx-click={hide_modal(@on_cancel, @id)}
+                  type="button"
+                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40 btn-close"
+                  aria-label={gettext("close")}
+                >
+                  <Fontawesome.icon icon="times" />
+                </button>
+              </div>
+              <div id={"#{@id}-content"}>
+                <header :if={@title != []}>
+                  <h1 id={"#{@id}-title"} class="text-lg font-semibold leading-8 text-zinc-800">
+                    {render_slot(@title)}
+                  </h1>
+                  <p
+                    :if={@subtitle != []}
+                    id={"#{@id}-description"}
+                    class="mt-2 text-sm leading-6 text-zinc-600"
+                  >
+                    {render_slot(@subtitle)}
+                  </p>
+                </header>
+                {render_slot(@inner_block)}
+                <div :if={@confirm != [] or @cancel != []} class="ml-6 mb-4 flex items-center gap-5">
+                  <.button
+                    :for={confirm <- @confirm}
+                    id={"#{@id}-confirm"}
+                    phx-click={@on_confirm}
+                    phx-disable-with
+                    class="py-2 px-3"
+                  >
+                    {render_slot(confirm)}
+                  </.button>
+                  <.link
+                    :for={cancel <- @cancel}
+                    phx-click={hide_modal(@on_cancel, @id)}
+                    class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+                  >
+                    {render_slot(cancel)}
+                  </.link>
+                </div>
+              </div>
+            </.focus_wrap>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
 
   @doc """
   Renders flash notices.
-
   ## Examples
-
       <.flash kind={:info} flash={@flash} />
       <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
   """
-  attr :id, :string, doc: "the optional id of flash container"
+  attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
-  attr :kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup"
-  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
+  attr :kind, :atom,
+    values: [:info, :success, :warning, :error],
+    doc: "used for styling and flash lookup"
+
+  attr :close, :boolean, default: true, doc: "whether the flash can be closed"
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
   slot :inner_block, doc: "the optional inner block that renders the flash message"
 
   def flash(assigns) do
-    assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
-
     ~H"""
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
-      class="toast toast-top toast-end z-50"
+      aria-live="assertive"
+      aria-atomic="true"
+      class={[
+        "alert",
+        @kind == :info && "alert-info",
+        @kind == :success && "alert-success",
+        @kind == :warning && "alert-warning",
+        @kind == :error && "alert-error"
+      ]}
       {@rest}
     >
-      <div class={[
-        "alert w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap",
-        @kind == :info && "alert-info",
-        @kind == :error && "alert-error"
-      ]}>
-        <.icon :if={@kind == :info} name="hero-information-circle" class="size-5 shrink-0" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle" class="size-5 shrink-0" />
-        <div>
-          <p :if={@title} class="font-semibold">{@title}</p>
-          <p>{msg}</p>
-        </div>
-        <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label="close">
-          <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
+      <div class="toast-header">
+        <button
+          :if={@close}
+          type="button"
+          class={"btn btn-xs btn-soft btn-close btn-#{@kind}"}
+          aria-label={gettext("close")}
+        >
+          <Fontawesome.icon icon="times" style="regular" />
         </button>
       </div>
+      <div class="toast-body">
+        {msg}
+      </div>
     </div>
+    """
+  end
+
+  @doc """
+  Shows the flash group with standard titles and content.
+  ## Examples
+      <.flash_group flash={@flash} />
+  """
+  attr :flash, :map, required: true, doc: "the map of flash messages"
+
+  def flash_group(assigns) do
+    # We set the z-index to 9999 because in some cases the toast is not correctly displaying
+    # over other elements even though it's a toast class
+    ~H"""
+    <div class="toast toast-top toast-end mt-25 z-9999">
+      <.flash id="flash-info" kind={:info} title="Information" role="alert" flash={@flash} />
+      <.flash id="flash-success" kind={:success} title="Success!" role="alert" flash={@flash} />
+      <.flash id="flash-warning" kind={:warning} title="Warning!" role="alert" flash={@flash} />
+      <.flash id="flash-error" kind={:error} title="Error!" role="alert" flash={@flash} />
+
+      <.flash
+        id="client-error"
+        kind={:error}
+        title={gettext("We can't find the internet")}
+        phx-disconnected={show(".phx-client-error #client-error") |> JS.remove_attribute("hidden")}
+        phx-connected={hide("#client-error") |> JS.set_attribute({"hidden", ""})}
+        hidden
+      >
+        {gettext("Attempting to reconnect")}
+      </.flash>
+    </div>
+    """
+  end
+
+  def oldflash_group(assigns) do
+    ~H"""
+    <div aria-live="polite" aria-atomic="true" class="position-relative h-1">
+      <div class="toast-container top-0 end-0 p-3">
+        <.flash id="flash-info" kind={:info} title="Information" role="alert" flash={@flash} />
+        <.flash id="flash-success" kind={:success} title="Success!" role="alert" flash={@flash} />
+        <.flash id="flash-warning" kind={:warning} title="Warning!" role="alert" flash={@flash} />
+        <.flash id="flash-error" kind={:error} title="Error!" role="alert" flash={@flash} />
+
+        <.flash
+          id="client-error"
+          kind={:error}
+          title={gettext("We can't find the internet")}
+          phx-disconnected={show(".phx-client-error #client-error") |> JS.remove_attribute("hidden")}
+          phx-connected={hide("#client-error") |> JS.set_attribute({"hidden", ""})}
+          hidden
+        >
+          {gettext("Attempting to reconnect")}
+          <%!-- <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" /> --%>
+        </.flash>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a simple form.
+  ## Examples
+      <.simple_form for={@form} phx-change="validate" phx-submit="save">
+        <.input field={@form[:email]} label="Email"/>
+        <.input field={@form[:username]} label="Username" />
+        <:actions>
+          <.button>Save</.button>
+        </:actions>
+      </.simple_form>
+  """
+  attr :for, :any, required: true, doc: "the datastructure for the form"
+  attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+
+  attr :rest, :global,
+    include: ~w(autocomplete name rel action enctype method novalidate target),
+    doc: "the arbitrary HTML attributes to apply to the form tag"
+
+  slot :inner_block, required: true
+  slot :actions, doc: "the slot for form actions, such as a submit button"
+
+  def simple_form(assigns) do
+    ~H"""
+    <.form :let={f} for={@for} as={@as} {@rest}>
+      <div class="">
+        {render_slot(@inner_block, f)}
+        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+          {render_slot(action, f)}
+        </div>
+      </div>
+    </.form>
     """
   end
 
@@ -88,7 +269,7 @@ defmodule HailstormWeb.CoreComponents do
       <.button navigate={~p"/"}>Home</.button>
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
-  attr :class, :string
+  attr :class, :any
   attr :variant, :string, values: ~w(primary)
   slot :inner_block, required: true
 
@@ -116,9 +297,15 @@ defmodule HailstormWeb.CoreComponents do
   end
 
   @doc """
+  This is an input component from a Phoenix 1.8 project using tailwind
+  styling for use in tailwind pages. Long term this is intended to be
+  mass renamed to `input` and the preceding component removed.
+
+  TODO: Remove normal input calls when bootstrap is replaced.
+
   Renders an input with label and error messages.
 
-  A `Phoenix.HTML.FormField` may be passed as argument,
+  A `FormField` may be passed as argument,
   which is used to retrieve the input name, id, and values.
   Otherwise all attributes may be passed explicitly.
 
@@ -133,13 +320,27 @@ defmodule HailstormWeb.CoreComponents do
     * For live file uploads, see `Phoenix.Component.live_file_input/1`
 
   See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-  for more information. Unsupported types, such as hidden and radio,
-  are best written directly in your templates.
+  for more information. Unsupported types, such as radio, are best
+  written directly in your templates.
 
   ## Examples
 
-      <.input field={@form[:email]} type="email" />
-      <.input name="my-input" errors={["oh no!"]} />
+  ```heex
+  <.input field={@form[:email]} type="email" />
+  <.input name="my-input" errors={["oh no!"]} />
+  ```
+
+  ## Select type
+
+  When using `type="select"`, you must pass the `options` and optionally
+  a `value` to mark which option should be preselected.
+
+  ```heex
+  <.input field={@form[:user_type]} type="select" options={["Admin": "admin", "User": "user"]} />
+  ```
+
+  For more information on what kind of data can be passed to `options` see
+  [`options_for_select`](https://hexdocs.pm/phoenix_html/Phoenix.HTML.Form.html#options_for_select/2).
   """
   attr :id, :any, default: nil
   attr :name, :any
@@ -149,9 +350,9 @@ defmodule HailstormWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-               search select tel text textarea time url week)
+               search select tel text textarea checkbox-array textarea-array time url week hidden)
 
-  attr :field, Phoenix.HTML.FormField,
+  attr :field, FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
   attr :errors, :list, default: []
@@ -159,15 +360,20 @@ defmodule HailstormWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
-  attr :class, :string, default: nil, doc: "the input class to use over defaults"
-  attr :error_class, :string, default: nil, doc: "the input error class to use over defaults"
+  attr :class, :any, default: nil, doc: "the input class to use over defaults"
+  attr :error_class, :any, default: nil, doc: "the input error class to use over defaults"
+  attr :description, :string, doc: "optional description to display if component allows"
+
+  attr :fieldset?, :boolean,
+    default: true,
+    doc: "include the fieldset class in the wrapping div, defaults to true"
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
 
-  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
-    errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
+  def input(%{field: %FormField{} = field} = assigns) do
+    errors = if Component.used_input?(field), do: field.errors, else: []
 
     assigns
     |> assign(field: nil, id: assigns.id || field.id)
@@ -177,16 +383,28 @@ defmodule HailstormWeb.CoreComponents do
     |> input()
   end
 
+  def input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <input type="hidden" id={@id} name={@name} value={@value} {@rest} />
+    """
+  end
+
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->
-        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+        Form.normalize_value("checkbox", assigns[:value])
       end)
 
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset">
       <label>
-        <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
+        <input
+          type="hidden"
+          name={@name}
+          value="false"
+          disabled={@rest[:disabled]}
+          form={@rest[:form]}
+        />
         <span class="label">
           <input
             type="checkbox"
@@ -196,7 +414,8 @@ defmodule HailstormWeb.CoreComponents do
             checked={@checked}
             class={@class || "checkbox checkbox-sm"}
             {@rest}
-          />{@label}
+          /><span class="font-bold">{@label}</span>
+          {assigns[:description]}
         </span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
@@ -206,7 +425,7 @@ defmodule HailstormWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset">
       <label>
         <span :if={@label} class="label mb-1">{@label}</span>
         <select
@@ -225,9 +444,69 @@ defmodule HailstormWeb.CoreComponents do
     """
   end
 
+  # Expects options to either be a list of the options or a list of pairs, the first item
+  # being the key and the second being the label used
+  def input(%{type: "checkbox-array"} = assigns) do
+    changeset_values = assigns[:value] || %{}
+    array_options = options_for_checkbox_array(assigns[:options])
+
+    assigns =
+      assigns
+      |> assign(changeset_values: changeset_values, options: array_options)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <label :for={{key, label} <- @options}>
+        <div class="label">
+          <input
+            type="checkbox"
+            id={"#{@id}-#{key}"}
+            name={"#{@name}[]"}
+            value={key}
+            checked={Enum.member?(@changeset_values, key)}
+            class={@class || "checkbox checkbox-sm"}
+            {@rest}
+          /><span class="font-bold">{key}</span>
+          &nbsp;{label && label}
+          {assigns[:description]}
+        </div>
+        <br />
+      </label>
+
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "textarea-array"} = assigns) do
+    value =
+      (assigns[:value] || [])
+      |> List.wrap()
+
+    assigns = assign(assigns, value: value)
+
+    ~H"""
+    <div class="fieldset">
+      <label>
+        <span :if={@label} class="label mb-1">{@label}</span>
+        <textarea
+          id={@id}
+          name={@name}
+          class={[
+            @class || "w-full textarea",
+            @errors != [] && (@error_class || "textarea-error")
+          ]}
+          {@rest}
+        >{Form.normalize_value("textarea", @value |> Enum.join("\n"))}</textarea>
+      </label>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
+
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="fieldset">
       <label>
         <span :if={@label} class="label mb-1">{@label}</span>
         <textarea
@@ -248,7 +527,7 @@ defmodule HailstormWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class={@fieldset? && "fieldset"}>
       <label>
         <span :if={@label} class="label mb-1">{@label}</span>
         <input
@@ -268,11 +547,29 @@ defmodule HailstormWeb.CoreComponents do
     """
   end
 
-  # Helper used by inputs to generate form errors
-  defp error(assigns) do
+  @doc """
+  Renders a label.
+  """
+  attr :for, :string, default: nil
+  slot :inner_block, required: true
+
+  def label(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
-      <.icon name="hero-exclamation-circle" class="size-5" />
+    <label for={@for} class="label control-label">
+      {render_slot(@inner_block)}
+    </label>
+    """
+  end
+
+  @doc """
+  Generates a generic error message.
+  """
+  slot :inner_block, required: true
+
+  def error(assigns) do
+    ~H"""
+    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 bg-danger_transparent p-2">
+      <Fontawesome.icon icon="circle-exclamation" style="solid" />
       {render_slot(@inner_block)}
     </p>
     """
@@ -280,19 +577,27 @@ defmodule HailstormWeb.CoreComponents do
 
   @doc """
   Renders a header with title.
+
+  <.header>
+    Main text
+    <:subtitle>
+      Subtitle text
+    </:subtitle>
+  </.header>
   """
+  attr :class, :string, default: nil
   slot :inner_block, required: true
   slot :subtitle
   slot :actions
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", "pb-4"]}>
+    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8">
+        <h1 class="text-lg font-semibold leading-8 text-zinc-600 dark:text-zinc-300">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
+        <p :if={@subtitle != []} class="heading-subtitle">
           {render_slot(@subtitle)}
         </p>
       </div>
@@ -301,20 +606,26 @@ defmodule HailstormWeb.CoreComponents do
     """
   end
 
-  @doc """
+  @doc ~S"""
   Renders a table with generic styling.
-
   ## Examples
-
       <.table id="users" rows={@users}>
-        <:col :let={user} label="id">{user.id}</:col>
-        <:col :let={user} label="username">{user.username}</:col>
+        <:col :let={user} label="id"><%= user.id %></:col>
+        <:col :let={user} label="username"><%= user.username %></:col>
+      </.table>
+
+      <.table id="users" rows={@users} table_class="table-sm table-hover">
+        <:col :let={user} label="id"><%= user.id %></:col>
+        <:col :let={user} label="username"><%= user.username %></:col>
       </.table>
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr :row_class, :any, default: nil, doc: "the function for setting the tr class"
+
+  attr :table_class, :any, default: ""
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -333,99 +644,119 @@ defmodule HailstormWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
-      <thead>
-        <tr>
-          <th :for={col <- @col}>{col[:label]}</th>
-          <th :if={@action != []}>
-            <span class="sr-only">Actions</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody id={@id} phx-update={is_struct(@rows, Phoenix.LiveView.LiveStream) && "stream"}>
-        <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
-          <td
-            :for={col <- @col}
+    <div class="table-responsive">
+      <table class={"table #{@table_class}"}>
+        <thead class="">
+          <tr>
+            <th :for={col <- @col} class="">{col[:label]}</th>
+            <th :if={@action != []} class="visually-hidden"><span>{gettext("Actions")}</span></th>
+          </tr>
+        </thead>
+        <tbody
+          id={@id}
+          phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
+          class=""
+        >
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
             phx-click={@row_click && @row_click.(row)}
-            class={@row_click && "hover:cursor-pointer"}
+            class={@row_class && @row_class.(row)}
           >
-            {render_slot(col, @row_item.(row))}
-          </td>
-          <td :if={@action != []} class="w-0 font-semibold">
-            <div class="flex gap-4">
-              <%= for action <- @action do %>
-                {render_slot(action, @row_item.(row))}
-              <% end %>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td :for={{col, _i} <- Enum.with_index(@col)} class={["", @row_click && "cursor-pointer"]}>
+              {render_slot(col, @row_item.(row))}
+            </td>
+            <td :if={@action != []}>
+              <div class="">
+                <span :for={action <- @action} class="">
+                  {render_slot(action, @row_item.(row))}
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
   @doc """
   Renders a data list.
-
   ## Examples
-
       <.list>
-        <:item title="Title">{@post.title}</:item>
-        <:item title="Views">{@post.views}</:item>
+        <:item title="Title"><%= @post.title %></:item>
+        <:item title="Views"><%= @post.views %></:item>
       </.list>
   """
   slot :item, required: true do
-    attr :title, :string, required: true
+    attr :title, :string
   end
 
   def list(assigns) do
     ~H"""
-    <ul class="list">
-      <li :for={item <- @item} class="list-row">
-        <div class="list-col-grow">
-          <div class="font-bold">{item.title}</div>
-          <div>{render_slot(item)}</div>
+    <div class="mt-14">
+      <dl class="-my-4 divide-y divide-zinc-100">
+        <div :for={item <- @item} class="flex gap-4 py-4 sm:gap-8">
+          <dt :if={item[:title]} class="list-title-item">
+            {item.title}
+          </dt>
+          <dd class="list-content-item">
+            {render_slot(item)}
+          </dd>
         </div>
-      </li>
-    </ul>
+      </dl>
+    </div>
     """
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com).
+  Renders a back navigation link.
 
-  Heroicons come in three styles – outline, solid, and mini.
-  By default, the outline style is used, but solid and mini may
-  be applied by using the `-solid` and `-mini` suffix.
-
-  You can customize the size and colors of the icons by setting
-  width, height, and background color classes.
-
-  Icons are extracted from the `deps/heroicons` directory and bundled within
-  your compiled app.css by the plugin in `assets/vendor/heroicons.js`.
+  Use navigate within the same LiveView session and href when directing to a different session.
 
   ## Examples
+      <.back navigate={~p"/section/posts"}>Back to posts</.back>
 
-      <.icon name="hero-x-mark" />
-      <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
+      <.back href={~p"/section"}>Back to section</.back>
   """
-  attr :name, :string, required: true
-  attr :class, :string, default: "size-4"
+  attr :navigate, :any
+  attr :href, :any
+  slot :inner_block, required: true
 
-  def icon(%{name: "hero-" <> _} = assigns) do
+  def back(%{navigate: _navigate} = assigns) do
     ~H"""
-    <span class={[@name, @class]} />
+    <div class="mt-16">
+      <.link
+        navigate={@navigate}
+        class="btn btn-secondary btn-soft text-sm font-semibold leading-6"
+      >
+        <i class="fa-fw fa-solid fa-arrow-left" />
+        {render_slot(@inner_block)}
+      </.link>
+    </div>
+    """
+  end
+
+  def back(%{href: _href} = assigns) do
+    ~H"""
+    <div class="mt-16">
+      <.link
+        href={@href}
+        class="btn btn-secondary btn-soft text-sm font-semibold leading-6"
+      >
+        <i class="fa-fw fa-solid fa-arrow-left" />
+        {render_slot(@inner_block)}
+      </.link>
+    </div>
     """
   end
 
   ## JS Commands
-
   def show(js \\ %JS{}, selector) do
     JS.show(js,
       to: selector,
-      time: 300,
       transition:
-        {"transition-all ease-out duration-300",
+        {"transition-all transform ease-out duration-300",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
          "opacity-100 translate-y-0 sm:scale-100"}
     )
@@ -436,27 +767,62 @@ defmodule HailstormWeb.CoreComponents do
       to: selector,
       time: 200,
       transition:
-        {"transition-all ease-in duration-200", "opacity-100 translate-y-0 sm:scale-100",
+        {"transition-all transform ease-in duration-200",
+         "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
+  end
+
+  def show_modal(js \\ %JS{}, id) when is_binary(id) do
+    js
+    |> JS.show(to: "##{id}")
+    |> JS.show(
+      to: "##{id}-bg",
+      transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
+    )
+    |> show("##{id}-container")
+    |> JS.add_class("overflow-hidden", to: "body")
+    |> JS.focus_first(to: "##{id}-content")
+  end
+
+  def hide_modal(js \\ %JS{}, id) do
+    js
+    |> JS.hide(
+      to: "##{id}-bg",
+      transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
+    )
+    |> hide("##{id}-container")
+    |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.remove_class("overflow-hidden", to: "body")
+    |> JS.pop_focus()
   end
 
   @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do
-    # You can make use of gettext to translate error messages by
-    # uncommenting and adjusting the following code:
-
-    # if count = opts[:count] do
-    #   Gettext.dngettext(HailstormWeb.Gettext, "errors", msg, msg, count, opts)
-    # else
-    #   Gettext.dgettext(HailstormWeb.Gettext, "errors", msg, opts)
-    # end
-
-    Enum.reduce(opts, msg, fn {key, value}, acc ->
-      String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
-    end)
+    # When using gettext, we typically pass the strings we want
+    # to translate as a static argument:
+    #
+    #     # Translate "is invalid" in the "errors" domain
+    #     dgettext("errors", "is invalid")
+    #
+    #     # Translate the number of files with plural rules
+    #     dngettext("errors", "1 file", "%{count} files", count)
+    #
+    # Because the error messages we show in our forms and APIs
+    # are defined inside Ecto, we need to translate them dynamically.
+    # This requires us to call the Gettext module passing our gettext
+    # backend as first argument.
+    #
+    # Note we use the "errors" domain, which means translations
+    # should be written to the errors.po file. The :count option is
+    # set by Ecto and indicates we should also apply plural rules.
+    if count = opts[:count] do
+      Gettext.dngettext(TeiserverWeb.Gettext, "errors", msg, msg, count, opts)
+    else
+      Gettext.dgettext(TeiserverWeb.Gettext, "errors", msg, opts)
+    end
   end
 
   @doc """
@@ -464,5 +830,29 @@ defmodule HailstormWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  <.ui_deprecation_warning new_url={~p"/some/path"} />
+  """
+  attr :new_url, :string
+
+  def ui_deprecation_warning(assigns) do
+    ~H"""
+    <div class="alert alert-warning mt-4">
+      This page has been moved to the <a href={@new_url}>new UI</a>. If there is functionality missing from the new pages or errors present in them please
+      <a href="https://github.com/beyond-all-reason/teiserver/issues">create an issue</a>
+      on the Teiserver repo so we can ensure it's not missed.
+    </div>
+    """
+  end
+
+  defp options_for_checkbox_array(options) do
+    options
+    |> Enum.map(fn
+      {key, label} -> {key, label}
+      %{key: key, label: label} -> {key, label}
+      str -> {str, nil}
+    end)
   end
 end

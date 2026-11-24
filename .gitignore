@@ -41,3 +41,24 @@ npm-debug.log
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# Other
+/assets/static/images/landing/*
+/assets/static/images/logo/*
+/assets/static/favicon.*
+/assets/static/js/ace
+/backups/
+/remote/
+/zignore/
+/hot_reload
+/source_deploy
+/source_deploy.tar.gz
+/bin
+.vscode/launch.json
+
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+*.session.sql
+.elixir_ls/*
+.idea

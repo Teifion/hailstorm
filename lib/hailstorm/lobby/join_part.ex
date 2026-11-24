@@ -3,10 +3,11 @@ defmodule Hailstorm.Lobby.JoinPart do
   Given a lobby id, join the lobby, then join the first ally team, then leave
   the lobby and repeat in a loop
   """
-  require Logger
+  alias Hailstorm.TachyonWorker
 
   use Hailstorm.TachyonWorker
-  alias Hailstorm.TachyonWorker
+
+  require Logger
 
   def init_state(arg) do
     %{lobby_id: arg.lobby_id, lobby_state: :no_lobby}

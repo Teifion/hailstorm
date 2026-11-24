@@ -51,12 +51,11 @@ defmodule Hailstorm.PromEx do
      application's dependencies. Also update the list of dashboards that are to be uploaded
      to Grafana in the `dashboards/0` function.
   """
+  alias PromEx.Plugins
 
   use PromEx, otp_app: :hailstorm
 
-  alias PromEx.Plugins
-
-  @impl true
+  @impl PromEx
   def plugins do
     [
       # PromEx built in plugins
@@ -76,7 +75,7 @@ defmodule Hailstorm.PromEx do
     ]
   end
 
-  @impl true
+  @impl PromEx
   def dashboard_assigns do
     [
       datasource_id: "VictoriaMetrics",
@@ -84,7 +83,7 @@ defmodule Hailstorm.PromEx do
     ]
   end
 
-  @impl true
+  @impl PromEx
   def dashboards do
     [
       # PromEx built in Grafana dashboards

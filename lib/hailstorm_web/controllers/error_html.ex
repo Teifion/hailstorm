@@ -4,6 +4,8 @@ defmodule HailstormWeb.ErrorHTML do
 
   See config/config.exs.
   """
+  alias Phoenix.Controller
+
   use HailstormWeb, :html
 
   # If you want to customize your error pages,
@@ -19,6 +21,6 @@ defmodule HailstormWeb.ErrorHTML do
   # the template name. For example, "404.html" becomes
   # "Not Found".
   def render(template, _assigns) do
-    Phoenix.Controller.status_message_from_template(template)
+    Controller.status_message_from_template(template)
   end
 end

@@ -5,6 +5,8 @@ defmodule HailstormWeb.ErrorJSON do
   See config/config.exs.
   """
 
+  alias Phoenix.Controller
+
   # If you want to customize a particular status code,
   # you may add your own clauses, such as:
   #
@@ -16,6 +18,6 @@ defmodule HailstormWeb.ErrorJSON do
   # the template name. For example, "404.json" becomes
   # "Not Found".
   def render(template, _assigns) do
-    %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
+    %{errors: %{detail: Controller.status_message_from_template(template)}}
   end
 end

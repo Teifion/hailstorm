@@ -2,10 +2,10 @@ defmodule Hailstorm.Lobby.Listing do
   @moduledoc """
   Repeatedly subscribe then unsubscribe after a bit to the list of lobbies
   """
+  alias Hailstorm.TachyonWorker
 
   use Hailstorm.TachyonWorker
-  alias Hailstorm.TachyonWorker
-  alias Hailstorm.Scenario
+
   require Logger
 
   def handle_frame({:text, msg}, state) do

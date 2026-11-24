@@ -3,11 +3,11 @@ defmodule Hailstorm.DataSource do
   a way to get a single reader over the data file, so that different workers can
   all spawn additional workers with fresh data without duplicates
   """
-  require Logger
+  alias Hailstorm.TestUser
 
   use GenServer
 
-  alias Hailstorm.TestUser
+  require Logger
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -47,7 +47,7 @@ defmodule Hailstorm.DataSource do
     new_data = resp.body
 
     {:ok, new_user} =
-      Hailstorm.TestUser.update_token(
+      TestUser.update_token(
         user,
         new_data["access_token"],
         new_data["refresh_token"]

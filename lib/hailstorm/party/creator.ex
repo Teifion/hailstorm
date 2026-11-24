@@ -3,13 +3,12 @@ defmodule Hailstorm.Party.Creator do
   Creates a party, then spawns additional workers (Hailstorm.Party.JoinPart)
   to repeatedly join and leave the party.
   """
-
-  # use WebSockex
-  use Hailstorm.TachyonWorker
-  require Logger
   alias Hailstorm.Scenario
-
   alias Hailstorm.TachyonWorker
+
+  use Hailstorm.TachyonWorker
+
+  require Logger
 
   # shortcut for a member to request an invite. It's simpler than tracking
   # the party state from the creator point of view

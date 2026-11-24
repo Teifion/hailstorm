@@ -4,10 +4,11 @@ defmodule Hailstorm.Lobby.Creator do
   join and leave the lobby.
   All these processes also subscribe to the lobby list
   """
+  alias Hailstorm.Scenario
+  alias Hailstorm.TachyonWorker
 
   use Hailstorm.TachyonWorker
-  alias Hailstorm.TachyonWorker
-  alias Hailstorm.Scenario
+
   require Logger
 
   def handle_frame({:text, msg}, state) do

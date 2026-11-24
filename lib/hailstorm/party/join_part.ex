@@ -2,10 +2,12 @@ defmodule Hailstorm.Party.JoinPart do
   @moduledoc """
   Given a party ID, repeatedly joins then leave the party
   """
+  alias Hailstorm.Party.Creator
+  alias Hailstorm.TachyonWorker
 
   use Hailstorm.TachyonWorker
+
   require Logger
-  alias Hailstorm.TachyonWorker
 
   def init_state(arg), do: %{founder_pid: arg.founder_pid}
 
@@ -22,7 +24,7 @@ defmodule Hailstorm.Party.JoinPart do
         {:ok, state}
 
       %{"commandId" => "user/self"} ->
-        Hailstorm.Party.Creator.invite(state.founder_pid, state.data.id)
+        Creator.invite(state.founder_pid, state.data.id)
         {:ok, state}
 
       %{"commandId" => "party/invited"} ->
@@ -38,7 +40,7 @@ defmodule Hailstorm.Party.JoinPart do
         {:ok, state}
 
       %{"commandId" => "party/leave", "status" => "success"} ->
-        Hailstorm.Party.Creator.invite(state.founder_pid, state.data.id)
+        Creator.invite(state.founder_pid, state.data.id)
         {:ok, state}
 
       _ ->
