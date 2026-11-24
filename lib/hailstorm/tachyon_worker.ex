@@ -3,6 +3,8 @@ defmodule Hailstorm.TachyonWorker do
   abstract away the boilerplate of connection and termination for tachyon
   """
 
+  alias Ecto.UUID
+
   defmacro __using__(_opts) do
     quote location: :keep do
       use WebSockex
@@ -98,6 +100,7 @@ defmodule Hailstorm.TachyonWorker do
 
       def terminate(reason, _state) do
         Logger.info("terminating connection because #{inspect(reason)}")
+
         case reason do
           {:local, _} -> nil
           {:remote, 1000, _} -> nil
@@ -120,7 +123,7 @@ defmodule Hailstorm.TachyonWorker do
   def shutdown(pid), do: WebSockex.cast(pid, :shutdown)
 
   def request(cmd_id),
-    do: %{commandId: cmd_id, messageId: to_string(UUIDv7.generate()), type: "request"}
+    do: %{commandId: cmd_id, messageId: to_string(UUID.generate(version: 7)), type: "request"}
 
   def request(cmd_id, data) do
     request(cmd_id)

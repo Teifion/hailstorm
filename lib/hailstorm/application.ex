@@ -13,10 +13,9 @@ defmodule Hailstorm.Application do
       {Hailstorm.Repo,
        [database: Application.get_env(:hailstorm, Hailstorm.Repo)[:sqlite_file], pool_size: 10]},
       Hailstorm.DataSource,
-      {DNSCluster, query: Application.get_env(:hailstorm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Hailstorm.PubSub},
       {Task.Supervisor, name: Hailstorm.TaskSupervisor},
-      Hailstorm.Scenario.System,
+      Hailstorm.Scenario.System
 
       # Start a worker by calling: Hailstorm.Worker.start_link(arg)
       # {Hailstorm.Worker, arg},

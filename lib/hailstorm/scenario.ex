@@ -10,7 +10,7 @@ defmodule Hailstorm.Scenario do
     rampup_step: 1
   ]
 
-  alias Hailstorm.Scenario.{StartTask, System}
+  alias Hailstorm.Scenario.StartTask
 
   def start_scenario(scenario) do
     result =

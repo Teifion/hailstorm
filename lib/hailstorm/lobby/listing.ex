@@ -5,7 +5,6 @@ defmodule Hailstorm.Lobby.Listing do
 
   use Hailstorm.TachyonWorker
   alias Hailstorm.TachyonWorker
-  alias Hailstorm.Scenario
   require Logger
 
   def handle_frame({:text, msg}, state) do

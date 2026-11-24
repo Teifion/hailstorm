@@ -1,6 +1,5 @@
 defmodule Hailstorm.Scenario.Supervisor do
   use Supervisor
-  require Logger
   alias Hailstorm.Scenario
 
   def start_link(scenario) do

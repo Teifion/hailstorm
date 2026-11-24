@@ -33,7 +33,7 @@ defmodule Hailstorm.Scenario.System do
     Registry.register(Hailstorm.ScenarioRegistry, {:start_task, scenario_name, pid}, nil)
   end
 
-  def register_worker(scenario_name, user_id, pid \\ self()) do
+  def register_worker(scenario_name, user_id, _pid \\ self()) do
     Registry.register(Hailstorm.ScenarioRegistry, {:worker, user_id}, {:worker, scenario_name})
   end
 
