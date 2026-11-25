@@ -105,6 +105,7 @@
           {Credo.Check.Readability.VariableNames, []},
           {Credo.Check.Readability.WithCustomTaggedTuple, []},
           {Credo.Check.Readability.WithSingleClause, []},
+          {Credo.Check.Consistency.UnusedVariableNames, [force: :meaningful]},
 
           #
           ## Refactoring Opportunities
@@ -171,7 +172,6 @@
         ],
         disabled: [
           # Checks that are enabled in Teiserver but disabled here (for now at any rate)
-          {Credo.Check.Consistency.UnusedVariableNames, [force: :meaningful]},
           {Credo.Check.Consistency.MultiAliasImportRequireUse, []},
           {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig, []},
 

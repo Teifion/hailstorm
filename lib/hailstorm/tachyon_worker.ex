@@ -64,7 +64,7 @@ defmodule Hailstorm.TachyonWorker do
             new_conn =
               Map.update!(connection_status_map.conn, :extra_headers, fn hdrs ->
                 Enum.map(hdrs, fn
-                  {"authorization", _} ->
+                  {"authorization", _any} ->
                     {"authorization", "Bearer #{new_user.access_token}"}
 
                   h ->
