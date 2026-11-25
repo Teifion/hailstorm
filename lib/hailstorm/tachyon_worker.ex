@@ -105,11 +105,11 @@ defmodule Hailstorm.TachyonWorker do
         Logger.info("terminating connection because #{inspect(reason)}")
 
         case reason do
-          {:local, _} -> nil
-          {:remote, 1000, _} -> nil
+          {:local, _any} -> nil
+          {:remote, 1000, _any} -> nil
           {:remote, :closed} -> nil
           :shutdown -> nil
-          _ -> Logger.info("ws abnormal termination: #{inspect(reason)}")
+          _any -> Logger.info("ws abnormal termination: #{inspect(reason)}")
         end
 
         :telemetry.execute([:hailstorm, :worker_count], %{count: -1})
@@ -117,7 +117,7 @@ defmodule Hailstorm.TachyonWorker do
 
       def init_state(arg), do: %{}
 
-      def handle_frame(_, state), do: {:ok, state}
+      def handle_frame(_any, state), do: {:ok, state}
 
       defoverridable init_state: 1, handle_frame: 2
     end
